@@ -1,0 +1,26 @@
+.profile {
+  display: grid;
+  row-gap: 10px;
+  grid-template-columns: 150px fit-content(300px) 43px 1fr;
+  grid-template-rows: 15% 1fr 35%;
+  align-items: end;
+  grid-template-areas:
+    "avatar title . add"
+    "avatar title edit add"
+    "avatar subtitle subtitle add";
+}
+
+@media (max-width: 700px) {
+  .profile {
+    row-gap: 0;
+    grid-template-columns: 1fr 189px 1fr;
+    grid-template-rows: 136px 1fr 1fr 1fr;
+    align-items: start;
+    justify-items: center;
+    grid-template-areas:
+      "avatar avatar avatar"
+      ". title edit"
+      "subtitle subtitle subtitle"
+      "add add add";
+  }
+}

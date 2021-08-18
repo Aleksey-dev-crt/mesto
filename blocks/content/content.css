@@ -1,0 +1,13 @@
+.content {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 40px 0 66px;
+}
+
+@media (max-width: 1000px) {
+  .content {
+    padding: 42px 19px 48px;
+  }
+}
+
+

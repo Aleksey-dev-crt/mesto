@@ -1,0 +1,16 @@
+.element__icon {
+  border: none;
+  width: 22px;
+  height: 19px;
+  background-image: url(../../../images/Element-Like.svg);
+  background-color: transparent;
+  align-self: center;
+  justify-self: end;
+  margin-right: 20px;
+  transition: opacity 0.3s;
+}
+
+.element__icon:hover {
+  opacity: 0.5;
+  cursor: pointer;
+}
