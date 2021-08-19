@@ -20,12 +20,12 @@ const cardTemplate = document.querySelector("#card-template").content;
 function createCard(cardData) {
   const cardElement = cardTemplate.querySelector(".element").cloneNode(true);
   const elementImage = cardElement.querySelector(".element__image");
-  elementImage.setAttribute("src", cardData.link);
-  elementImage.setAttribute("alt", cardData.name);
+  elementImage.src = cardData.link;
+  elementImage.alt = cardData.name;
   elementImage.addEventListener("click", () => {
     const image = document.querySelector(".popup__image");
-    image.setAttribute("src", cardData.link);
-    image.setAttribute("alt", cardData.name);
+    image.src = cardData.link;
+    image.alt = cardData.name;
     document.querySelector(".popup__picture-caption").textContent =
       cardData.name;
     openPopup(popupImage);
@@ -61,8 +61,8 @@ function closePopup(popup) {
 initial(initialCards, cardsContainer);
 
 editProfile.addEventListener("click", () => {
-  profileInputName.setAttribute("value", profileInputName.value);
-  profileInputJob.setAttribute("value", profileInputJob.value);
+  profileInputName.value = profileTitle.textContent;
+  profileInputJob.value = profileSubTitle.textContent;
   openPopup(popupEditProfile);
 });
 
@@ -95,5 +95,6 @@ createPlace.addEventListener("submit", (evt) => {
   newCard.name = placeInputTitle.value;
   newCard.link = placeInputLink.value;
   cardsContainer.prepend(createCard(newCard));
+  createPlace.reset();
   closePopup(popupAddPlace);
 });
