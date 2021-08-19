@@ -48,8 +48,9 @@ function renderCard(card) {
   elementImage.setAttribute("src", card.link);
   elementImage.setAttribute("alt", card.name);
   elementImage.addEventListener("click", () => {
-    document.querySelector(".popup__image").setAttribute("src", card.link);
-    document.querySelector(".popup__image").setAttribute("alt", card.name);
+    const image = document.querySelector(".popup__image");
+    image.setAttribute("src", card.link);
+    image.setAttribute("alt", card.name);
     document.querySelector(".popup__image-caption").textContent = card.name;
     openPopup(popupImage);
   });
