@@ -1,0 +1,8 @@
+.popup__container_image {
+  padding: 0;
+  background-color: transparent;
+  min-width: min-content;
+  min-height: min-content;
+  border-radius: 0;
+  box-shadow: none;
+}

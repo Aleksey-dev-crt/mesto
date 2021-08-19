@@ -1,4 +1,4 @@
-.element__icon {
+.element__like {
   border: none;
   width: 22px;
   height: 19px;
@@ -10,7 +10,7 @@
   transition: opacity 0.3s;
 }
 
-.element__icon:hover {
+.element__like:hover {
   opacity: 0.5;
   cursor: pointer;
 }
