@@ -33,21 +33,15 @@ function createCard(cardData) {
   cardElement.querySelector(".element__title").textContent = cardData.name;
   cardElement
     .querySelector(".element__delete")
-    .addEventListener("click", (evt) => {
-      evt.target.parentElement.remove();
-    });
+    .addEventListener("click", evt => evt.target.parentElement.remove());
   cardElement
     .querySelector(".element__like")
-    .addEventListener("click", (evt) => {
-      evt.target.classList.toggle("element__like_active");
-    });
+    .addEventListener("click", evt => evt.target.classList.toggle("element__like_active"));
   return cardElement;
 }
 
 function initial(data, container) {
-  data.forEach((card) => {
-    container.append(createCard(card));
-  });
+  data.forEach(card => container.append(createCard(card)));
 }
 
 function openPopup(popup) {
@@ -66,30 +60,22 @@ editProfile.addEventListener("click", () => {
   openPopup(popupEditProfile);
 });
 
-closeProfile.addEventListener("click", () => {
-  closePopup(popupEditProfile);
-});
+closeProfile.addEventListener("click", () => closePopup(popupEditProfile));
 
-addPlace.addEventListener("click", () => {
-  openPopup(popupAddPlace);
-});
+addPlace.addEventListener("click", () => openPopup(popupAddPlace));
 
-closePlace.addEventListener("click", () => {
-  closePopup(popupAddPlace);
-});
+closePlace.addEventListener("click", () => closePopup(popupAddPlace));
 
-closeImage.addEventListener("click", () => {
-  closePopup(popupImage);
-});
+closeImage.addEventListener("click", () => closePopup(popupImage));
 
-saveProfile.addEventListener("submit", (evt) => {
+saveProfile.addEventListener("submit", evt => {
   evt.preventDefault();
   profileTitle.textContent = profileInputName.value;
   profileSubTitle.textContent = profileInputJob.value;
   closePopup(popupEditProfile);
 });
 
-createPlace.addEventListener("submit", (evt) => {
+createPlace.addEventListener("submit", evt => {
   evt.preventDefault();
   const newCard = {};
   newCard.name = placeInputTitle.value;
