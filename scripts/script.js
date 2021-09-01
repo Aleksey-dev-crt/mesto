@@ -1,19 +1,16 @@
 const popupEditProfile = document.querySelector(".popup_type_profile");
 const editProfile = document.querySelector(".profile__edit-button");
-const closeProfile = document.querySelector("#close-profile");
 const profileInputName = document.querySelector("#profile-input_name");
 const profileInputJob = document.querySelector("#profile-input_job");
 const saveProfile = document.querySelector(".popup__form_type_profile");
 const profileTitle = document.querySelector(".profile__title");
 const profileSubTitle = document.querySelector(".profile__subtitle");
-const popupAddPlace = document.querySelector(".popup_type_card-add");
+const popupAddPlace = document.querySelector(".popup_type_card_add");
 const addPlace = document.querySelector(".profile__add-button");
-const closePlace = document.querySelector("#close-place");
 const placeInputTitle = document.querySelector("#place-input_title");
 const placeInputLink = document.querySelector("#place-input_link");
 const createPlace = document.querySelector(".popup__form_type_place");
 const popupImage = document.querySelector(".popup_type_picture");
-const closeImage = document.querySelector("#close-image");
 const cardsContainer = document.querySelector(".elements__list");
 const cardTemplate = document.querySelector("#card-template").content;
 
@@ -33,10 +30,10 @@ function createCard(cardData) {
   cardElement.querySelector(".element__title").textContent = cardData.name;
   cardElement
     .querySelector(".element__delete")
-    .addEventListener("click", evt => evt.target.parentElement.remove());
+    .addEventListener("click", event => event.target.parentElement.remove());
   cardElement
     .querySelector(".element__like")
-    .addEventListener("click", evt => evt.target.classList.toggle("element__like_active"));
+    .addEventListener("click", event => event.target.classList.toggle("element__like_active"));
   return cardElement;
 }
 
@@ -60,23 +57,27 @@ editProfile.addEventListener("click", () => {
   openPopup(popupEditProfile);
 });
 
-closeProfile.addEventListener("click", () => closePopup(popupEditProfile));
-
 addPlace.addEventListener("click", () => openPopup(popupAddPlace));
 
-closePlace.addEventListener("click", () => closePopup(popupAddPlace));
+document.addEventListener("click", event => {
+  const isButtonCloseClicked = event.target.classList.contains("popup__button-close");
+  const isOverlayProfileClicked = event.target.classList.contains("popup_type_profile");
+  const isOverlayPlaceClicked = event.target.classList.contains("popup_type_card_add");
+  const isOverlayPictureClicked = event.target.classList.contains("popup_type_picture");
+  if (isButtonCloseClicked || isOverlayProfileClicked) closePopup(popupEditProfile);
+  if (isButtonCloseClicked || isOverlayPlaceClicked) closePopup(popupAddPlace);
+  if (isButtonCloseClicked || isOverlayPictureClicked) closePopup(popupImage);
+});
 
-closeImage.addEventListener("click", () => closePopup(popupImage));
-
-saveProfile.addEventListener("submit", evt => {
-  evt.preventDefault();
+saveProfile.addEventListener("submit", event => {
+  event.preventDefault();
   profileTitle.textContent = profileInputName.value;
   profileSubTitle.textContent = profileInputJob.value;
   closePopup(popupEditProfile);
 });
 
-createPlace.addEventListener("submit", evt => {
-  evt.preventDefault();
+createPlace.addEventListener("submit", event => {
+  event.preventDefault();
   const newCard = {};
   newCard.name = placeInputTitle.value;
   newCard.link = placeInputLink.value;
