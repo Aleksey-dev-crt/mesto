@@ -16,4 +16,4 @@ _Данный проект представляет собой веб стран
 
 **Ссылка на страницу**
 
-- [Место](https://aleksey-dev-crt.github.io/mesto)
+- [Место](https://aleksey-dev-crt.github.io/mesto-project/)
