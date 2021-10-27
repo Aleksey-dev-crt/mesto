@@ -1,4 +1,4 @@
-export const config = {
+const config = {
   popupImage: "popup_type_picture",
   popupCardAdd: "popup_type_card_add",
   popupProfile: "popup_type_profile",
@@ -21,8 +21,7 @@ export const config = {
   profileInputName: document.forms.profile.elements.name,
   profileInputJob: document.forms.profile.elements.job,
   saveProfile: document.forms.profile,
-  popupInputs: document.querySelectorAll(".popup__input"),
-  inputErrorClass: "popup__input_error",
+
   profileTitle: document.querySelector(".profile__title"),
   profileSubTitle: document.querySelector(".profile__subtitle"),
   addPlace: document.querySelector(".profile__add-button"),
@@ -52,6 +51,13 @@ export const config = {
       name: "Байкал",
       link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/baikal.jpg",
     },
-  ]
-}
+  ],
+};
 
+const configForValidation = {
+  formList: document.querySelectorAll(".popup__form"),
+  popupInputList: document.querySelectorAll(".popup__input"),
+  inputErrorClass: "popup__input_type_error",
+};
+
+export { config, configForValidation };

@@ -1,5 +1,5 @@
 import { config } from "./config";
-import { openPopup, closePopup } from "./modal";
+import { openPopup } from "./modal";
 
 const createCard = (cardData) => {
   const cardElement = config.cardTemplate.querySelector(config.cardElement).cloneNode(true);
@@ -23,20 +23,7 @@ const createCard = (cardData) => {
   return cardElement;
 }
 
-const addCard = () => {
-  const newCard = {};
-  newCard.name = config.placeInputTitle.value;
-  newCard.link = config.placeInputLink.value;
-  config.cardsContainer.prepend(createCard(newCard));
-  config.createPlace.reset();
-  closePopup(document.querySelector(`.${config.popupCardAdd}`));
-}
-
-const initial = (data, container) => {
-  data.forEach(card => container.append(createCard(card)));
-}
-
-export {createCard, addCard, initial};
+export { createCard };
 
 
 

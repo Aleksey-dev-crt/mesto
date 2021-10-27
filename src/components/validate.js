@@ -1,19 +1,23 @@
-import { config } from "./config";
+import { configForValidation } from "./config";
 
 const isFormValid = (inputList) => {
   return inputList.every((inputElement) => inputElement.validity.valid);
 };
 
+const clearValidationErrors = () => {
+  Array.from(configForValidation.popupInputList).forEach(inputElement => hideInputError(inputElement))
+}
+
 const hideInputError = (inputElement) => {
   const errorElement = document.querySelector(`#${inputElement.name}-error`);
   errorElement.textContent = "";
-  inputElement.classList.remove(config.inputErrorClass);
+  inputElement.classList.remove(configForValidation.inputErrorClass);
 };
 
 const showInputError = (inputElement) => {
   const errorElement = document.querySelector(`#${inputElement.name}-error`);
   errorElement.textContent = inputElement.validationMessage;
-  inputElement.classList.add(config.inputErrorClass);
+  inputElement.classList.add(configForValidation.inputErrorClass);
 };
 
 const toggleButtonState = (inputList, buttonElement) => {
@@ -36,25 +40,19 @@ const formValidate = (inputList, buttonElement) => {
   inputList.forEach((inputElement) => {
     inputElement.addEventListener("input", () => {
       checkInputValidity(inputElement);
-      toggleButtonState(inputList, buttonElement);
+      toggleButtonState(inputList, buttonElement)
     });
   });
 };
 
-const enableValidation = () => {
-  const inputListProfile = Array.from(config.saveProfile.elements);
-  const inputListPlace = Array.from(config.createPlace.elements);
-  const submitButtonProfile = config.saveProfile.elements.saveProfile;
-  const submitButtonPlace = config.createPlace.elements.addPlace;
-
-  if (config.editProfile) {
-    formValidate(inputListProfile, submitButtonProfile);
-    toggleButtonState(inputListProfile, submitButtonProfile);
-  }
-  if (config.addPlace) {
-    formValidate(inputListPlace, submitButtonPlace);
-    toggleButtonState(inputListPlace, submitButtonPlace);
-  }
+const enableValidation = (configForValidation) => {
+  const forms = Array.from(configForValidation.formList)
+  forms.forEach(form => {
+    const submitButton = Array.from(form.elements).filter(element => element.type == "submit").pop()
+    const inputList = Array.from(form.elements).filter(element => element.type != "submit")
+    formValidate(inputList, submitButton)
+    toggleButtonState(inputList, submitButton)
+  })
 };
 
-export { enableValidation, hideInputError };
+export { enableValidation, clearValidationErrors };

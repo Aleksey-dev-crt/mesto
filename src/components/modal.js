@@ -1,17 +1,28 @@
 import { config } from "./config";
-import { hideInputError } from "./validate";
-import { enableValidation } from "./validate";
 
 const openPopup = (popup) => {
   popup.classList.add(config.popupOpened);
-  enableValidation();
-}
+  document.addEventListener("keydown", closePopupByEscape);
+  document.addEventListener("click", closePopupByOverlay);
+};
 
 const closePopup = (popup) => {
   popup.classList.remove(config.popupOpened);
-  Array.from(config.popupInputs).forEach(inputElement => hideInputError(inputElement))
-}
+  document.removeEventListener("keydown", closePopupByEscape);
+  document.removeEventListener("click", closePopupByOverlay);
+};
 
-export {openPopup, closePopup};
+const closePopupByEscape = (event) => {
+  const currentPopup = document.querySelector(`.${config.popupOpened}`);
+  if (event.key === "Escape") {
+    closePopup(currentPopup);
+  }
+};
 
+const closePopupByOverlay = (event) => {
+  if (event.target.classList.contains("popup")) {
+    closePopup(event.target);
+  }
+};
 
+export { openPopup, closePopup };
