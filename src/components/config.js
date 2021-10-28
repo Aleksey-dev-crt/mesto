@@ -15,13 +15,16 @@ const config = {
   cardLikeActive: "element__like_active",
   popupOpened: "popup_opened",
   createPlace: document.forms.place,
+  createPlaceInputList: Array.from(document.forms.place.querySelectorAll(".popup__input")),
+  createPlaceSubmit: document.forms.place.querySelector(".popup__button-save"),
   placeInputTitle: document.forms.place.elements.title,
   placeInputLink: document.forms.place.elements.link,
   editProfile: document.querySelector(".profile__edit-button"),
+  editProfileSubmit: document.forms.profile.querySelector(".popup__button-save"),
+  profileInputList: Array.from(document.forms.profile.querySelectorAll(".popup__input")),
   profileInputName: document.forms.profile.elements.name,
   profileInputJob: document.forms.profile.elements.job,
   saveProfile: document.forms.profile,
-
   profileTitle: document.querySelector(".profile__title"),
   profileSubTitle: document.querySelector(".profile__subtitle"),
   addPlace: document.querySelector(".profile__add-button"),
@@ -56,7 +59,6 @@ const config = {
 
 const configForValidation = {
   formList: document.querySelectorAll(".popup__form"),
-  popupInputList: document.querySelectorAll(".popup__input"),
   inputErrorClass: "popup__input_type_error",
 };
 

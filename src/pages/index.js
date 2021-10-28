@@ -1,7 +1,7 @@
 import { config, configForValidation } from "../components/config";
 import { createCard } from "../components/card";
 import { closePopup, openPopup } from "../components/modal";
-import { enableValidation, clearValidationErrors } from "../components/validate";
+import { enableValidation, clearValidationErrors, toggleButtonState } from "../components/validate";
 
 import "./index.css";
 
@@ -60,15 +60,17 @@ const initial = (data, container) => {
 };
 
 config.editProfile.addEventListener("click", () => {
-  clearValidationErrors();
+  clearValidationErrors(config.profileInputList);
   config.profileInputName.value = config.profileTitle.textContent;
   config.profileInputJob.value = config.profileSubTitle.textContent;
   openPopup(popupProfile);
+  toggleButtonState(config.profileInputList, config.editProfileSubmit);
 });
 
 config.addPlace.addEventListener("click", () => {
-  clearValidationErrors();
+  clearValidationErrors(config.createPlaceInputList);
   openPopup(popupCardAdd);
+  toggleButtonState(config.createPlaceInputList, config.createPlaceSubmit);
 });
 
 popupCloseButtonList.forEach((button) =>

@@ -13,8 +13,8 @@ const closePopup = (popup) => {
 };
 
 const closePopupByEscape = (event) => {
-  const currentPopup = document.querySelector(`.${config.popupOpened}`);
   if (event.key === "Escape") {
+    const currentPopup = document.querySelector(`.${config.popupOpened}`);
     closePopup(currentPopup);
   }
 };

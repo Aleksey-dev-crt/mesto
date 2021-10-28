@@ -4,8 +4,8 @@ const isFormValid = (inputList) => {
   return inputList.every((inputElement) => inputElement.validity.valid);
 };
 
-const clearValidationErrors = () => {
-  Array.from(configForValidation.popupInputList).forEach(inputElement => hideInputError(inputElement))
+const clearValidationErrors = (inputList) => {
+  inputList.forEach(inputElement => hideInputError(inputElement))
 }
 
 const hideInputError = (inputElement) => {
@@ -51,8 +51,7 @@ const enableValidation = (configForValidation) => {
     const submitButton = Array.from(form.elements).filter(element => element.type == "submit").pop()
     const inputList = Array.from(form.elements).filter(element => element.type != "submit")
     formValidate(inputList, submitButton)
-    toggleButtonState(inputList, submitButton)
   })
 };
 
-export { enableValidation, clearValidationErrors };
+export { enableValidation, clearValidationErrors, toggleButtonState };
