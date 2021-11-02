@@ -16,13 +16,12 @@
       </header>
       <main class="content">
         <section class="profile">
-          <img
-            src="<%=require('./images/Profile-Avatar.jpg')%>"
-            alt="Аватар"
+          <button
+            type="button"
             class="profile__avatar"
-          />
-          <h1 class="profile__title">Жак-Ив Кусто</h1>
-          <p class="profile__subtitle">Исследователь океана</p>
+          ></button>
+          <h1 class="profile__title"></h1>
+          <p class="profile__subtitle"></p>
           <button type="button" class="profile__edit-button"></button>
           <button type="button" class="profile__add-button"></button>
         </section>
@@ -40,7 +39,7 @@
             <input
               name="name"
               type="text"
-              value="Жак-Ив Кусто"
+              value=""
               class="popup__input"
               minlength="2"
               maxlength="40"
@@ -50,7 +49,7 @@
             <input
               name="job"
               type="text"
-              value="Исследователь океана"
+              value=""
               class="popup__input"
               minlength="2"
               maxlength="200"
@@ -95,6 +94,35 @@
           <button type="button" class="popup__button-close"></button>
         </div>
       </div>
+      <div class="popup popup_type_avatar_change">
+        <div class="popup__container">
+          <form name="avatar" class="popup__form" novalidate>
+            <h2 class="popup__title">Обновить аватар</h2>
+            <input
+              name="link-avatar"
+              type="url"
+              placeholder="Ссылка на картинку"
+              value=""
+              class="popup__input"
+              required
+            />
+            <span class="popup__error-visible" id="link-avatar-error"></span>
+            <button type="submit" name="addPlace" class="popup__button-save">
+              Сохранить
+            </button>
+          </form>
+          <button type="button" class="popup__button-close"></button>
+        </div>
+      </div>
+      <div class="popup popup_type_delete_confirm">
+        <div class="popup__container">
+            <h2 class="popup__title">Вы уверены?</h2>
+            <button type="button" class="popup__button-save popup__button-save_type_confirm">
+              Да
+            </button>
+          <button type="button" class="popup__button-close"></button>
+        </div>
+      </div>
       <div class="popup popup_image popup_type_picture">
         <div class="popup__container popup__container_image">
           <figure class="popup__picture">
@@ -119,7 +147,10 @@
           onerror="this.src=`<%=require('./images/placeholder-image.jpg')%>`"
         />
         <h2 class="element__title"></h2>
-        <button type="button" class="element__like"></button>
+        <div class="element__likes">
+          <button type="button" class="element__like"></button>
+          <span class="element__likes-counter"></span>
+        </div>
         <button type="button" class="element__delete"></button>
       </li>
     </template>

@@ -1,9 +1,47 @@
 import { config } from "./config";
 import { openPopup } from "./modal";
+import { likeHandler } from "./api";
+
+const changeLikeState = (cardData, cardElement, event) => {
+  const likesCounter = cardElement.querySelector(config.likesCounter);
+  const cardLike = cardElement.querySelector(config.cardLike);
+  likesCounter.textContent = cardData.likes.length.toString();
+  if (cardData.likes.some((el) => el._id == config.userId)) {
+    cardLike.classList.add(config.cardLikeActive);
+    if (event) {
+      likeHandler(cardData._id, "DELETE")
+        .then((res) => {
+          likesCounter.textContent = res.likes.length.toString();
+          cardData.likes = res.likes;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  } else {
+    cardLike.classList.remove(config.cardLikeActive);
+    if (event) {
+      likeHandler(cardData._id, "PUT")
+        .then((res) => {
+          likesCounter.textContent = res.likes.length.toString();
+          cardData.likes = res.likes;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }
+};
 
 const createCard = (cardData) => {
-  const cardElement = config.cardTemplate.querySelector(config.cardElement).cloneNode(true);
+  const cardElement = config.cardTemplate
+    .querySelector(config.cardElement)
+    .cloneNode(true);
   const elementImage = cardElement.querySelector(config.elementImage);
+  const deleteButton = cardElement.querySelector(config.cardDelete);
+
+  changeLikeState(cardData, cardElement);
+
   elementImage.src = cardData.link;
   elementImage.alt = cardData.name;
   elementImage.addEventListener("click", () => {
@@ -14,21 +52,23 @@ const createCard = (cardData) => {
     openPopup(document.querySelector(`.${config.popupImage}`));
   });
   cardElement.querySelector(config.cardTitle).textContent = cardData.name;
-  cardElement
-    .querySelector(config.cardDelete)
-    .addEventListener("click", event => event.target.parentElement.remove());
+  if (cardData.owner._id != config.userId) {
+    deleteButton.style.display = "none";
+  }
+  deleteButton.addEventListener("click", (event) => {
+    event.target.parentElement.id = cardData._id;
+    config.cardForRemove = event.target.parentElement;
+    openPopup(config.popupDeleteConfirm);
+  });
+
   cardElement
     .querySelector(config.cardLike)
-    .addEventListener("click", event => event.target.classList.toggle(config.cardLikeActive));
+    .addEventListener("click", (event) => {
+      changeLikeState(cardData, cardElement, event);
+      event.target.classList.toggle(config.cardLikeActive);
+    });
+
   return cardElement;
-}
+};
 
 export { createCard };
-
-
-
-
-
-
-
-
