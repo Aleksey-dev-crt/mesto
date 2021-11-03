@@ -6,28 +6,23 @@ const configAPI = {
   },
 };
 
+const checkResponse = res => {
+  if (res.ok) {
+    return res.json();
+  }
+  return Promise.reject(`Ошибка: ${res.status + " - " + res.statusText}`);
+}
+
 const getInitialCards = () => {
   return fetch(`${configAPI.baseUrl}/cards`, {
     headers: configAPI.headers,
-  }).then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-
-    return Promise.reject(`Ошибка: ${res.status}`);
-  });
+  }).then(checkResponse)
 };
 
 const getUserData = () => {
   return fetch(`${configAPI.baseUrl}/users/me`, {
     headers: configAPI.headers,
-  }).then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-
-    return Promise.reject(`Ошибка: ${res.status}`);
-  });
+  }).then(checkResponse)
 };
 
 const patchUserData = (name, about) => {
@@ -38,13 +33,7 @@ const patchUserData = (name, about) => {
       name: name,
       about: about,
     }),
-  }).then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-
-    return Promise.reject(`Ошибка: ${res.status}`);
-  });
+  }).then(checkResponse)
 };
 
 const patchAvatar = (link) => {
@@ -54,13 +43,7 @@ const patchAvatar = (link) => {
     body: JSON.stringify({
       avatar: link
     }),
-  }).then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-
-    return Promise.reject(`Ошибка: ${res.status}`);
-  });
+  }).then(checkResponse)
 };
 
 const postNewCard = (name, link) => {
@@ -71,39 +54,21 @@ const postNewCard = (name, link) => {
       name: name,
       link: link,
     }),
-  }).then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-
-    return Promise.reject(`Ошибка: ${res.status}`);
-  });
+  }).then(checkResponse)
 };
 
 const likeHandler = (cardId, method) => {
   return fetch(`${configAPI.baseUrl}/cards/likes/${cardId}`, {
     method: method,
     headers: configAPI.headers,
-  }).then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-
-    return Promise.reject(`Ошибка: ${res.status}`);
-  });
+  }).then(checkResponse)
 };
 
 const deleteHandler = (cardId) => {
   return fetch(`${configAPI.baseUrl}/cards/${cardId}`, {
     method: "DELETE",
     headers: configAPI.headers,
-  }).then((res) => {
-    if (res.ok) {
-      return res.json();
-    }
-
-    return Promise.reject(`Ошибка: ${res.status}`);
-  });
+  }).then(checkResponse)
 };
 
 export {

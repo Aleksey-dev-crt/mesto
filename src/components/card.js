@@ -11,6 +11,7 @@ const changeLikeState = (cardData, cardElement, event) => {
     if (event) {
       likeHandler(cardData._id, "DELETE")
         .then((res) => {
+          event.target.classList.remove(config.cardLikeActive);
           likesCounter.textContent = res.likes.length.toString();
           cardData.likes = res.likes;
         })
@@ -23,6 +24,7 @@ const changeLikeState = (cardData, cardElement, event) => {
     if (event) {
       likeHandler(cardData._id, "PUT")
         .then((res) => {
+          event.target.classList.add(config.cardLikeActive);
           likesCounter.textContent = res.likes.length.toString();
           cardData.likes = res.likes;
         })
@@ -39,6 +41,7 @@ const createCard = (cardData) => {
     .cloneNode(true);
   const elementImage = cardElement.querySelector(config.elementImage);
   const deleteButton = cardElement.querySelector(config.cardDelete);
+  const popupImage = document.querySelector(`.${config.popupImage}`);
 
   changeLikeState(cardData, cardElement);
 
@@ -49,7 +52,7 @@ const createCard = (cardData) => {
     image.src = cardData.link;
     image.alt = cardData.name;
     config.popupPictureCaption.textContent = cardData.name;
-    openPopup(document.querySelector(`.${config.popupImage}`));
+    openPopup(popupImage);
   });
   cardElement.querySelector(config.cardTitle).textContent = cardData.name;
   if (cardData.owner._id != config.userId) {
@@ -65,7 +68,6 @@ const createCard = (cardData) => {
     .querySelector(config.cardLike)
     .addEventListener("click", (event) => {
       changeLikeState(cardData, cardElement, event);
-      event.target.classList.toggle(config.cardLikeActive);
     });
 
   return cardElement;

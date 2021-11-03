@@ -70,12 +70,12 @@ const addCard = () => {
     .then((data) => {
       config.cardsContainer.prepend(createCard(data));
       closePopup(popupCardAdd);
+      config.createPlace.reset();
     })
     .finally(() => (config.createPlaceSubmit.textContent = "Создать"))
     .catch((err) => {
       console.log(err);
     });
-  config.createPlace.reset();
 };
 
 const initial = (data, container) => {
@@ -109,9 +109,9 @@ popupCloseButtonList.forEach((button) =>
 );
 
 config.deleteConfirmButton.addEventListener("click", () => {
-  config.cardForRemove.remove();
   deleteHandler(config.cardForRemove.id)
     .then(() => {
+      config.cardForRemove.remove();
       closePopup(config.popupDeleteConfirm);
     })
     .catch((err) => {
@@ -121,11 +121,11 @@ config.deleteConfirmButton.addEventListener("click", () => {
 
 config.saveProfile.addEventListener("submit", (event) => {
   event.preventDefault();
-  config.profileTitle.textContent = config.profileInputName.value;
-  config.profileSubTitle.textContent = config.profileInputJob.value;
   config.editProfileSubmit.textContent = "Сохранение...";
   patchUserData(config.profileInputName.value, config.profileInputJob.value)
     .then(() => {
+      config.profileTitle.textContent = config.profileInputName.value;
+      config.profileSubTitle.textContent = config.profileInputJob.value;
       closePopup(popupProfile);
     })
     .finally(() => (config.editProfileSubmit.textContent = "Сохранить"))
@@ -140,11 +140,11 @@ config.avatarForm.addEventListener("submit", (event) => {
   patchAvatar(config.avatarInput.value)
     .then((data) => {
       config.profileAvatar.style.backgroundImage = `url(${data.avatar})`;
+      config.avatarInput.value = "";
       closePopup(popupAvatar);
     })
     .finally(() => {
       config.avatarSubmit.textContent = "Сохранить";
-      config.avatarInput.value = "";
     })
     .catch((err) => {
       console.log(err);
@@ -157,23 +157,30 @@ config.createPlace.addEventListener("submit", (event) => {
   addCard();
 });
 
-getUserData()
-  .then((data) => {
-    config.profileTitle.textContent = data.name;
-    config.profileSubTitle.textContent = data.about;
-    config.profileAvatar.style.backgroundImage = `url(${data.avatar})`;
-    config.userId = data._id;
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+Promise.all([getUserData, getInitialCards]).then((functions) => {
+  const getUserData = functions[0];
+  const getInitialCards = functions[1];
 
-getInitialCards()
-  .then((data) => {
-    initial(data, config.cardsContainer);
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+  getUserData()
+    .then((data) => {
+      config.profileTitle.textContent = data.name;
+      config.profileSubTitle.textContent = data.about;
+      config.profileAvatar.style.backgroundImage = `url(${data.avatar})`;
+      config.userId = data._id;
+      return getInitialCards;
+    })
+    .catch((err) => {
+      console.log(err);
+    })
+    .then((getInitialCards) => {
+      getInitialCards()
+        .then((data) => {
+          initial(data, config.cardsContainer);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    });
+});
 
 enableValidation(configForValidation);
