@@ -157,30 +157,19 @@ config.createPlace.addEventListener("submit", (event) => {
   addCard();
 });
 
-Promise.all([getUserData, getInitialCards]).then((functions) => {
-  const getUserData = functions[0];
-  const getInitialCards = functions[1];
+// "Ничего не загружается и ошибка в консоли" Проблемы на стороне сервера,
+// тут не все от меня зависит, код с ошибками в консоли я бы присылать на ревью не стал...
+// Предыдущая версия Promise.all тоже прекрасно работала, но этот вариант проще и лучше
 
-  getUserData()
-    .then((data) => {
-      config.profileTitle.textContent = data.name;
-      config.profileSubTitle.textContent = data.about;
-      config.profileAvatar.style.backgroundImage = `url(${data.avatar})`;
-      config.userId = data._id;
-      return getInitialCards;
-    })
-    .catch((err) => {
-      console.log(err);
-    })
-    .then((getInitialCards) => {
-      getInitialCards()
-        .then((data) => {
-          initial(data, config.cardsContainer);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    });
-});
+Promise.all([getUserData(), getInitialCards()]).then(([userData, cards]) => {
+  config.profileTitle.textContent = userData.name;
+  config.profileSubTitle.textContent = userData.about;
+  config.profileAvatar.style.backgroundImage = `url(${userData.avatar})`;
+  config.userId = userData._id;
+  initial(cards, config.cardsContainer);
+})
+.catch((err) => {
+  console.log(err);
+})
 
 enableValidation(configForValidation);
