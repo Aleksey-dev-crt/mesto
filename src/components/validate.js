@@ -1,4 +1,4 @@
-import { configForValidation } from "./config";
+import { config } from "./config";
 
 const isFormValid = (inputList) => {
   return inputList.every((inputElement) => inputElement.validity.valid);
@@ -11,13 +11,13 @@ const clearValidationErrors = (inputList) => {
 const hideInputError = (inputElement) => {
   const errorElement = document.querySelector(`#${inputElement.name}-error`);
   errorElement.textContent = "";
-  inputElement.classList.remove(configForValidation.inputErrorClass);
+  inputElement.classList.remove(config.inputErrorClass);
 };
 
 const showInputError = (inputElement) => {
   const errorElement = document.querySelector(`#${inputElement.name}-error`);
   errorElement.textContent = inputElement.validationMessage;
-  inputElement.classList.add(configForValidation.inputErrorClass);
+  inputElement.classList.add(config.inputErrorClass);
 };
 
 const toggleButtonState = (inputList, buttonElement) => {
@@ -45,8 +45,8 @@ const formValidate = (inputList, buttonElement) => {
   });
 };
 
-const enableValidation = (configForValidation) => {
-  const forms = Array.from(configForValidation.formList)
+const enableValidation = () => {
+  const forms = Array.from(document.forms)
   forms.forEach(form => {
     const submitButton = Array.from(form.elements).filter(element => element.type == "submit").pop()
     const inputList = Array.from(form.elements).filter(element => element.type != "submit")

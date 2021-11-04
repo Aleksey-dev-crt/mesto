@@ -1,4 +1,4 @@
-import { config, configForValidation } from "../components/config";
+import { config } from "../components/config";
 import { createCard } from "../components/card";
 import { closePopup, openPopup } from "../components/modal";
 import {
@@ -6,8 +6,6 @@ import {
   clearValidationErrors,
   toggleButtonState,
 } from "../components/validate";
-
-import "./index.css";
 import {
   getInitialCards,
   getUserData,
@@ -16,6 +14,9 @@ import {
   patchAvatar,
   deleteHandler,
 } from "../components/api";
+
+import "./index.css";
+
 
 const deleteIcon = new URL("../images/Delete-Icon.svg", import.meta.url);
 const elementLikeActive = new URL(
@@ -157,10 +158,6 @@ config.createPlace.addEventListener("submit", (event) => {
   addCard();
 });
 
-// "Ничего не загружается и ошибка в консоли" Проблемы на стороне сервера,
-// тут не все от меня зависит, код с ошибками в консоли я бы присылать на ревью не стал...
-// Предыдущая версия Promise.all тоже прекрасно работала, но этот вариант проще и лучше
-
 Promise.all([getUserData(), getInitialCards()]).then(([userData, cards]) => {
   config.profileTitle.textContent = userData.name;
   config.profileSubTitle.textContent = userData.about;
@@ -172,4 +169,4 @@ Promise.all([getUserData(), getInitialCards()]).then(([userData, cards]) => {
   console.log(err);
 })
 
-enableValidation(configForValidation);
+enableValidation();
