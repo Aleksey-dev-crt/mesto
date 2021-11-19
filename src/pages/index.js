@@ -170,3 +170,4 @@ Promise.all([getUserData(), getInitialCards()]).then(([userData, cards]) => {
 })
 
 enableValidation();
+
