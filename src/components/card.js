@@ -1,6 +1,7 @@
 import { config } from "./config";
 import { openPopup } from "./modal";
 import { likeHandler } from "./api";
+import {api} from "./api";
 
 const changeLikeState = (cardData, cardElement, event) => {
   const likesCounter = cardElement.querySelector(config.likesCounter);
@@ -9,7 +10,7 @@ const changeLikeState = (cardData, cardElement, event) => {
   if (cardData.likes.some((el) => el._id == config.userId)) {
     cardLike.classList.add(config.cardLikeActive);
     if (event) {
-      likeHandler(cardData._id, "DELETE")
+      api.likeHandler(cardData._id, "DELETE")
         .then((res) => {
           event.target.classList.remove(config.cardLikeActive);
           likesCounter.textContent = res.likes.length.toString();
@@ -22,7 +23,7 @@ const changeLikeState = (cardData, cardElement, event) => {
   } else {
     cardLike.classList.remove(config.cardLikeActive);
     if (event) {
-      likeHandler(cardData._id, "PUT")
+      api.likeHandler(cardData._id, "PUT")
         .then((res) => {
           event.target.classList.add(config.cardLikeActive);
           likesCounter.textContent = res.likes.length.toString();

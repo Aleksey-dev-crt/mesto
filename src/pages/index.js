@@ -15,6 +15,8 @@ import {
   deleteHandler,
 } from "../components/api";
 
+import {api} from "../components/api";
+
 import "./index.css";
 
 
@@ -62,12 +64,22 @@ const popupCloseButtonList = Array.from(
   document.querySelectorAll(`.${config.popupCloseBtn}`)
 );
 
+// const api = new Api({
+//   baseUrl: "https://nomoreparties.co/v1/plus-cohort-3",
+//   headers: {
+//     authorization: "404cf7e6-f742-45c3-8054-e5f1c388edbf",
+//     "Content-Type": "application/json",
+//   }
+// });
+console.log(api)
+
+
 const addCard = () => {
   const newCard = {};
   newCard.name = config.placeInputTitle.value;
   newCard.link = config.placeInputLink.value;
 
-  postNewCard(newCard.name, newCard.link)
+  api.postNewCard(newCard.name, newCard.link)
     .then((data) => {
       config.cardsContainer.prepend(createCard(data));
       closePopup(popupCardAdd);
@@ -110,7 +122,7 @@ popupCloseButtonList.forEach((button) =>
 );
 
 config.deleteConfirmButton.addEventListener("click", () => {
-  deleteHandler(config.cardForRemove.id)
+  api.deleteHandler(config.cardForRemove.id)
     .then(() => {
       config.cardForRemove.remove();
       closePopup(config.popupDeleteConfirm);
@@ -123,7 +135,7 @@ config.deleteConfirmButton.addEventListener("click", () => {
 config.saveProfile.addEventListener("submit", (event) => {
   event.preventDefault();
   config.editProfileSubmit.textContent = "Сохранение...";
-  patchUserData(config.profileInputName.value, config.profileInputJob.value)
+  api.patchUserData(config.profileInputName.value, config.profileInputJob.value)
     .then(() => {
       config.profileTitle.textContent = config.profileInputName.value;
       config.profileSubTitle.textContent = config.profileInputJob.value;
@@ -138,7 +150,7 @@ config.saveProfile.addEventListener("submit", (event) => {
 config.avatarForm.addEventListener("submit", (event) => {
   event.preventDefault();
   config.avatarSubmit.textContent = "Сохранение...";
-  patchAvatar(config.avatarInput.value)
+  api.patchAvatar(config.avatarInput.value)
     .then((data) => {
       config.profileAvatar.style.backgroundImage = `url(${data.avatar})`;
       config.avatarInput.value = "";
@@ -158,7 +170,7 @@ config.createPlace.addEventListener("submit", (event) => {
   addCard();
 });
 
-Promise.all([getUserData(), getInitialCards()]).then(([userData, cards]) => {
+Promise.all([api.getUserData(), api.getInitialCards()]).then(([userData, cards]) => {
   config.profileTitle.textContent = userData.name;
   config.profileSubTitle.textContent = userData.about;
   config.profileAvatar.style.backgroundImage = `url(${userData.avatar})`;
@@ -168,6 +180,7 @@ Promise.all([getUserData(), getInitialCards()]).then(([userData, cards]) => {
 .catch((err) => {
   console.log(err);
 })
+
 
 enableValidation();
 
