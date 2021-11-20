@@ -6,14 +6,6 @@ import {
   clearValidationErrors,
   toggleButtonState,
 } from "../components/validate";
-// import {
-//   getInitialCards,
-//   getUserData,
-//   patchUserData,
-//   postNewCard,
-//   patchAvatar,
-//   deleteHandler,
-// } from "../components/api";
 
 import {api} from "../components/api";
 import Card from "../components/card";
