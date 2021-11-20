@@ -1,21 +1,22 @@
 import { config } from "../components/config";
-import { createCard } from "../components/card";
+//import { createCard } from "../components/card";
 import { closePopup, openPopup } from "../components/modal";
 import {
   enableValidation,
   clearValidationErrors,
   toggleButtonState,
 } from "../components/validate";
-import {
-  getInitialCards,
-  getUserData,
-  patchUserData,
-  postNewCard,
-  patchAvatar,
-  deleteHandler,
-} from "../components/api";
+// import {
+//   getInitialCards,
+//   getUserData,
+//   patchUserData,
+//   postNewCard,
+//   patchAvatar,
+//   deleteHandler,
+// } from "../components/api";
 
 import {api} from "../components/api";
+import Card from "../components/card";
 
 import "./index.css";
 
@@ -64,24 +65,15 @@ const popupCloseButtonList = Array.from(
   document.querySelectorAll(`.${config.popupCloseBtn}`)
 );
 
-// const api = new Api({
-//   baseUrl: "https://nomoreparties.co/v1/plus-cohort-3",
-//   headers: {
-//     authorization: "404cf7e6-f742-45c3-8054-e5f1c388edbf",
-//     "Content-Type": "application/json",
-//   }
-// });
-console.log(api)
-
-
 const addCard = () => {
   const newCard = {};
   newCard.name = config.placeInputTitle.value;
   newCard.link = config.placeInputLink.value;
+  const card = new Card(newCard, config.cardTemplate)
 
   api.postNewCard(newCard.name, newCard.link)
     .then((data) => {
-      config.cardsContainer.prepend(createCard(data));
+      config.cardsContainer.prepend(card.createCard(data));
       closePopup(popupCardAdd);
       config.createPlace.reset();
     })
@@ -92,7 +84,11 @@ const addCard = () => {
 };
 
 const initial = (data, container) => {
-  data.forEach((card) => container.append(createCard(card)));
+
+  data.forEach((card) => {
+    card = new Card(card, config.cardTemplate)
+    container.append(card.createCard(card.cardData))
+  });
 };
 
 config.editProfile.addEventListener("click", () => {
