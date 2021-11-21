@@ -1,14 +1,15 @@
 import { config } from "../components/config";
 //import { createCard } from "../components/card";
 import { closePopup, openPopup } from "../components/modal";
-import {
-  enableValidation,
-  clearValidationErrors,
-  toggleButtonState,
-} from "../components/validate";
+// import {
+//   enableValidation,
+//   clearValidationErrors,
+//   toggleButtonState,
+// } from "../components/validate";
 
 import {api} from "../components/api";
 import Card from "../components/card";
+import FormValidator from "../components/validate"
 
 import "./index.css";
 
@@ -84,23 +85,23 @@ const initial = (data, container) => {
 };
 
 config.editProfile.addEventListener("click", () => {
-  clearValidationErrors(config.profileInputList);
+  //clearValidationErrors(config.profileInputList);
   config.profileInputName.value = config.profileTitle.textContent;
   config.profileInputJob.value = config.profileSubTitle.textContent;
   openPopup(popupProfile);
-  toggleButtonState(config.profileInputList, config.editProfileSubmit);
+  //toggleButtonState(config.profileInputList, config.editProfileSubmit);
 });
 
 config.addPlace.addEventListener("click", () => {
-  clearValidationErrors(config.createPlaceInputList);
+  //clearValidationErrors(config.createPlaceInputList);
   openPopup(popupCardAdd);
-  toggleButtonState(config.createPlaceInputList, config.createPlaceSubmit);
+  //toggleButtonState(config.createPlaceInputList, config.createPlaceSubmit);
 });
 
 config.profileAvatar.addEventListener("click", () => {
-  clearValidationErrors(config.avatarInputList);
+  //clearValidationErrors(config.avatarInputList);
   openPopup(popupAvatar);
-  toggleButtonState(config.avatarInputList, config.avatarSubmit);
+  //toggleButtonState(config.avatarInputList, config.avatarSubmit);
 });
 
 popupCloseButtonList.forEach((button) =>
@@ -170,5 +171,16 @@ Promise.all([api.getUserData(), api.getInitialCards()]).then(([userData, cards])
 })
 
 
-enableValidation();
+const forms = Array.from(document.forms)
+  forms.forEach(form => {
+    const validator = new FormValidator({
+        inputErrorClass: "popup__input_type_error",
+      }, form)
+    validator.enableValidation(form)
+  })
+
+
+
+
+// enableValidation();
 
