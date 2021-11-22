@@ -7,12 +7,12 @@ import { closePopup, openPopup } from "../components/modal";
 //   toggleButtonState,
 // } from "../components/validate";
 
-import {api} from "../components/api";
+import { api } from "../components/api";
 import Card from "../components/card";
-import FormValidator from "../components/validate"
+import FormValidator from "../components/validate";
+import Section from "../components/section";
 
 import "./index.css";
-
 
 const deleteIcon = new URL("../images/Delete-Icon.svg", import.meta.url);
 const elementLikeActive = new URL(
@@ -57,16 +57,30 @@ const popupAvatar = document.querySelector(`.${config.popupAvatar}`);
 const popupCloseButtonList = Array.from(
   document.querySelectorAll(`.${config.popupCloseBtn}`)
 );
+const validationConfig = {
+  inputErrorClass: "popup__input_type_error",
+};
 
 const addCard = () => {
   const newCard = {};
   newCard.name = config.placeInputTitle.value;
   newCard.link = config.placeInputLink.value;
-  const card = new Card(newCard, config.cardTemplate)
+  const card = new Card(newCard, config.cardTemplate);
 
-  api.postNewCard(newCard.name, newCard.link)
+  api
+    .postNewCard(newCard.name, newCard.link)
     .then((data) => {
-      config.cardsContainer.prepend(card.createCard(data));
+      const section = new Section(
+        {
+          items: data,
+          renderer: (item) => {
+            const card = new Card(item, config.cardTemplate);
+            return card.createCard(data);
+          },
+        },
+        config.cardsContainer
+      );
+      section.addItem(data);
       closePopup(popupCardAdd);
       config.createPlace.reset();
     })
@@ -76,32 +90,43 @@ const addCard = () => {
     });
 };
 
-const initial = (data, container) => {
-
-  data.forEach((card) => {
-    card = new Card(card, config.cardTemplate)
-    container.append(card.createCard(card.cardData))
-  });
-};
+// const initial = (data, container) => {
+//   data.forEach((card) => {
+//     card = new Card(card, config.cardTemplate);
+//     container.append(card.createCard(card.cardData));
+//   });
+// };
 
 config.editProfile.addEventListener("click", () => {
-  //clearValidationErrors(config.profileInputList);
+  const validator = new FormValidator(validationConfig, config.saveProfile);
+  validator.enableValidation();
+  validator.clearValidationErrors(config.profileInputList);
   config.profileInputName.value = config.profileTitle.textContent;
   config.profileInputJob.value = config.profileSubTitle.textContent;
   openPopup(popupProfile);
-  //toggleButtonState(config.profileInputList, config.editProfileSubmit);
+  validator.toggleButtonState(
+    config.profileInputList,
+    config.editProfileSubmit
+  );
 });
 
 config.addPlace.addEventListener("click", () => {
-  //clearValidationErrors(config.createPlaceInputList);
+  const validator = new FormValidator(validationConfig, config.createPlace);
+  validator.enableValidation();
+  validator.clearValidationErrors(config.createPlaceInputList);
   openPopup(popupCardAdd);
-  //toggleButtonState(config.createPlaceInputList, config.createPlaceSubmit);
+  validator.toggleButtonState(
+    config.createPlaceInputList,
+    config.createPlaceSubmit
+  );
 });
 
 config.profileAvatar.addEventListener("click", () => {
-  //clearValidationErrors(config.avatarInputList);
+  const validator = new FormValidator(validationConfig, config.avatarForm);
+  validator.enableValidation();
+  validator.clearValidationErrors(config.avatarInputList);
   openPopup(popupAvatar);
-  //toggleButtonState(config.avatarInputList, config.avatarSubmit);
+  validator.toggleButtonState(config.avatarInputList, config.avatarSubmit);
 });
 
 popupCloseButtonList.forEach((button) =>
@@ -111,7 +136,8 @@ popupCloseButtonList.forEach((button) =>
 );
 
 config.deleteConfirmButton.addEventListener("click", () => {
-  api.deleteHandler(config.cardForRemove.id)
+  api
+    .deleteHandler(config.cardForRemove.id)
     .then(() => {
       config.cardForRemove.remove();
       closePopup(config.popupDeleteConfirm);
@@ -124,7 +150,8 @@ config.deleteConfirmButton.addEventListener("click", () => {
 config.saveProfile.addEventListener("submit", (event) => {
   event.preventDefault();
   config.editProfileSubmit.textContent = "Сохранение...";
-  api.patchUserData(config.profileInputName.value, config.profileInputJob.value)
+  api
+    .patchUserData(config.profileInputName.value, config.profileInputJob.value)
     .then(() => {
       config.profileTitle.textContent = config.profileInputName.value;
       config.profileSubTitle.textContent = config.profileInputJob.value;
@@ -139,7 +166,8 @@ config.saveProfile.addEventListener("submit", (event) => {
 config.avatarForm.addEventListener("submit", (event) => {
   event.preventDefault();
   config.avatarSubmit.textContent = "Сохранение...";
-  api.patchAvatar(config.avatarInput.value)
+  api
+    .patchAvatar(config.avatarInput.value)
     .then((data) => {
       config.profileAvatar.style.backgroundImage = `url(${data.avatar})`;
       config.avatarInput.value = "";
@@ -159,28 +187,24 @@ config.createPlace.addEventListener("submit", (event) => {
   addCard();
 });
 
-Promise.all([api.getUserData(), api.getInitialCards()]).then(([userData, cards]) => {
-  config.profileTitle.textContent = userData.name;
-  config.profileSubTitle.textContent = userData.about;
-  config.profileAvatar.style.backgroundImage = `url(${userData.avatar})`;
-  config.userId = userData._id;
-  initial(cards, config.cardsContainer);
-})
-.catch((err) => {
-  console.log(err);
-})
-
-
-const forms = Array.from(document.forms)
-  forms.forEach(form => {
-    const validator = new FormValidator({
-        inputErrorClass: "popup__input_type_error",
-      }, form)
-    validator.enableValidation(form)
+Promise.all([api.getUserData(), api.getInitialCards()])
+  .then(([userData, cards]) => {
+    config.profileTitle.textContent = userData.name;
+    config.profileSubTitle.textContent = userData.about;
+    config.profileAvatar.style.backgroundImage = `url(${userData.avatar})`;
+    config.userId = userData._id;
+    const section = new Section(
+      {
+        items: cards,
+        renderer: (item) => {
+          const card = new Card(item, config.cardTemplate);
+          return card.createCard(card.cardData);
+        },
+      },
+      config.cardsContainer
+    );
+    section.renderItems();
   })
-
-
-
-
-// enableValidation();
-
+  .catch((err) => {
+    console.log(err);
+  });

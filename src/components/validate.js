@@ -1,8 +1,8 @@
-import { config } from "./config";
+//import { config } from "./config";
 
 export default class FormValidator {
-  constructor(configForValidation, formElement) {
-    this.config = configForValidation;
+  constructor(validationConfig, formElement) {
+    this.validationConfig = validationConfig;
     this.formElement = formElement;
   }
 
@@ -17,13 +17,13 @@ export default class FormValidator {
   _hideInputError(inputElement) {
     const errorElement = document.querySelector(`#${inputElement.name}-error`);
     errorElement.textContent = "";
-    inputElement.classList.remove(config.inputErrorClass);
+    inputElement.classList.remove(this.validationConfig.inputErrorClass);
   }
 
   _showInputError(inputElement) {
     const errorElement = document.querySelector(`#${inputElement.name}-error`);
     errorElement.textContent = inputElement.validationMessage;
-    inputElement.classList.add(config.inputErrorClass);
+    inputElement.classList.add(this.validationConfig.inputErrorClass);
   }
 
   toggleButtonState(inputList, buttonElement) {
@@ -51,10 +51,10 @@ export default class FormValidator {
     });
   }
 
-  enableValidation(form) {
+  enableValidation() {
     //const forms = Array.from(document.forms)
-    const submitButton = Array.from(form.elements).filter(element => element.type == "submit").pop()
-    const inputList = Array.from(form.elements).filter(element => element.type != "submit")
+    const submitButton = Array.from(this.formElement.elements).filter(element => element.type == "submit").pop()
+    const inputList = Array.from(this.formElement.elements).filter(element => element.type != "submit")
     this._formValidate(inputList, submitButton)
     // forms.forEach(form => {
     //   const submitButton = Array.from(form.elements).filter(element => element.type == "submit").pop()
