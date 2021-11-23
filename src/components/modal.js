@@ -46,6 +46,7 @@ export class Popup {
     document.removeEventListener("click", this._handleBtnClose);
   }
 
+
 }
 
 export class PopupWithImage extends Popup {

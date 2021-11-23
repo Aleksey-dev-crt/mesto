@@ -12,6 +12,7 @@ import Card from "../components/card";
 import FormValidator from "../components/validate";
 import Section from "../components/section";
 import { Popup, PopupWithForm } from "../components/modal";
+import UserInfo from "../components/UserInfo";
 
 import "./index.css";
 
@@ -61,6 +62,10 @@ const popupAvatar = document.querySelector(`.${config.popupAvatar}`);
 const validationConfig = {
   inputErrorClass: "popup__input_type_error",
 };
+const userInfo = new UserInfo(
+  { userName: config.profileInputName, userInfo: config.profileInputJob },
+  api
+);
 
 const addCard = () => {
   const newCard = {};
@@ -103,20 +108,26 @@ config.editProfile.addEventListener("click", () => {
   const editProfile = new PopupWithForm(popupProfile, (event) => {
     event.preventDefault();
     config.editProfileSubmit.textContent = "Сохранение...";
-    api
-      .patchUserData(
-        config.profileInputName.value,
-        config.profileInputJob.value
-      )
-      .then(() => {
-        config.profileTitle.textContent = config.profileInputName.value;
-        config.profileSubTitle.textContent = config.profileInputJob.value;
-        editProfile.close();
-      })
-      .finally(() => (config.editProfileSubmit.textContent = "Сохранить"))
-      .catch((err) => {
-        console.log(err);
-      });
+    // api
+    //   .patchUserData(
+    //     config.profileInputName.value,
+    //     config.profileInputJob.value
+    //   )
+    userInfo.setUserInfo(
+      config.profileTitle,
+      config.profileSubTitle,
+      config.editProfileSubmit,
+      editProfile
+    );
+    // .then(() => {
+    //   config.profileTitle.textContent = config.profileInputName.value;
+    //   config.profileSubTitle.textContent = config.profileInputJob.value;
+    //   editProfile.close();
+    // })
+    // .finally(() => (config.editProfileSubmit.textContent = "Сохранить"))
+    // .catch((err) => {
+    //   console.log(err);
+    // });
   });
   editProfile.open();
   validator.toggleButtonState(
@@ -135,7 +146,7 @@ config.addPlace.addEventListener("click", () => {
     addCard();
     addPlace.close();
   });
-  addPlace.open()
+  addPlace.open();
   validator.toggleButtonState(
     config.createPlaceInputList,
     config.createPlaceSubmit
@@ -149,20 +160,20 @@ config.profileAvatar.addEventListener("click", () => {
   const profileAvatar = new PopupWithForm(popupAvatar, (event) => {
     event.preventDefault();
     config.avatarSubmit.textContent = "Сохранение...";
-  api
-    .patchAvatar(config.avatarInput.value)
-    .then((data) => {
-      config.profileAvatar.style.backgroundImage = `url(${data.avatar})`;
-      profileAvatar.close();
-    })
-    .finally(() => {
-      config.avatarSubmit.textContent = "Сохранить";
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+    api
+      .patchAvatar(config.avatarInput.value)
+      .then((data) => {
+        config.profileAvatar.style.backgroundImage = `url(${data.avatar})`;
+        profileAvatar.close();
+      })
+      .finally(() => {
+        config.avatarSubmit.textContent = "Сохранить";
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   });
-  profileAvatar.open()
+  profileAvatar.open();
   validator.toggleButtonState(config.avatarInputList, config.avatarSubmit);
 });
 
@@ -177,8 +188,8 @@ config.deleteConfirmButton.addEventListener("click", () => {
     .deleteHandler(config.cardForRemove.id)
     .then(() => {
       config.cardForRemove.remove();
-      const acceptConfirm = new Popup(config.popupDeleteConfirm)
-      acceptConfirm.close()
+      const acceptConfirm = new Popup(config.popupDeleteConfirm);
+      acceptConfirm.close();
     })
     .catch((err) => {
       console.log(err);
@@ -225,8 +236,9 @@ config.deleteConfirmButton.addEventListener("click", () => {
 //   addCard();
 // });
 
-Promise.all([api.getUserData(), api.getInitialCards()])
+Promise.all([userInfo.getUserInfo(), api.getInitialCards()])
   .then(([userData, cards]) => {
+    console.log(userData);
     config.profileTitle.textContent = userData.name;
     config.profileSubTitle.textContent = userData.about;
     config.profileAvatar.style.backgroundImage = `url(${userData.avatar})`;
