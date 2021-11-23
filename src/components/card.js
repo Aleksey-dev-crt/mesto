@@ -1,13 +1,13 @@
 import { config } from "./config";
-import { openPopup } from "./modal";
+import { Popup, PopupWithImage } from "./modal";
 // import { likeHandler } from "./api";
-import {api} from "./api";
+import { api } from "./api";
 
 export default class Card {
   constructor(cardData, cardTemplate, handleCardClick) {
-    this.cardData = cardData
-    this.cardTemplate = cardTemplate
-    this.handleCardClick = handleCardClick
+    this.cardData = cardData;
+    this.cardTemplate = cardTemplate;
+    this.handleCardClick = handleCardClick;
   }
 
   _changeLikeState(cardData, cardElement, event) {
@@ -17,7 +17,8 @@ export default class Card {
     if (cardData.likes.some((el) => el._id == config.userId)) {
       cardLike.classList.add(config.cardLikeActive);
       if (event) {
-        api.likeHandler(cardData._id, "DELETE")
+        api
+          .likeHandler(cardData._id, "DELETE")
           .then((res) => {
             event.target.classList.remove(config.cardLikeActive);
             likesCounter.textContent = res.likes.length.toString();
@@ -30,7 +31,8 @@ export default class Card {
     } else {
       cardLike.classList.remove(config.cardLikeActive);
       if (event) {
-        api.likeHandler(cardData._id, "PUT")
+        api
+          .likeHandler(cardData._id, "PUT")
           .then((res) => {
             event.target.classList.add(config.cardLikeActive);
             likesCounter.textContent = res.likes.length.toString();
@@ -43,7 +45,7 @@ export default class Card {
     }
   }
 
-  createCard (cardData) {
+  createCard(cardData) {
     const cardElement = config.cardTemplate
       .querySelector(config.cardElement)
       .cloneNode(true);
@@ -56,11 +58,14 @@ export default class Card {
     elementImage.src = cardData.link;
     elementImage.alt = cardData.name;
     elementImage.addEventListener("click", () => {
-      const image = config.image;
-      image.src = cardData.link;
-      image.alt = cardData.name;
-      config.popupPictureCaption.textContent = cardData.name;
-      openPopup(popupImage);
+      const image = new PopupWithImage(
+        popupImage,
+        cardData.link,
+        cardData.name,
+        config.image,
+        config.popupPictureCaption
+      );
+      image.open();
     });
     cardElement.querySelector(config.cardTitle).textContent = cardData.name;
     if (cardData.owner._id != config.userId) {
@@ -69,7 +74,8 @@ export default class Card {
     deleteButton.addEventListener("click", (event) => {
       event.target.parentElement.id = cardData._id;
       config.cardForRemove = event.target.parentElement;
-      openPopup(config.popupDeleteConfirm);
+      const deleteConfirm = new Popup(config.popupDeleteConfirm);
+      deleteConfirm.open();
     });
 
     cardElement
@@ -79,7 +85,5 @@ export default class Card {
       });
 
     return cardElement;
-  };
+  }
 }
-
-// export { createCard };

@@ -1,6 +1,6 @@
 import { config } from "../components/config";
 //import { createCard } from "../components/card";
-import { closePopup, openPopup } from "../components/modal";
+//import { closePopup, openPopup } from "../components/modal";
 // import {
 //   enableValidation,
 //   clearValidationErrors,
@@ -11,6 +11,7 @@ import { api } from "../components/api";
 import Card from "../components/card";
 import FormValidator from "../components/validate";
 import Section from "../components/section";
+import { Popup, PopupWithForm } from "../components/modal";
 
 import "./index.css";
 
@@ -54,9 +55,9 @@ const Images = [
 const popupCardAdd = document.querySelector(`.${config.popupCardAdd}`);
 const popupProfile = document.querySelector(`.${config.popupProfile}`);
 const popupAvatar = document.querySelector(`.${config.popupAvatar}`);
-const popupCloseButtonList = Array.from(
-  document.querySelectorAll(`.${config.popupCloseBtn}`)
-);
+// const popupCloseButtonList = Array.from(
+//   document.querySelectorAll(`.${config.popupCloseBtn}`)
+// );
 const validationConfig = {
   inputErrorClass: "popup__input_type_error",
 };
@@ -65,8 +66,6 @@ const addCard = () => {
   const newCard = {};
   newCard.name = config.placeInputTitle.value;
   newCard.link = config.placeInputLink.value;
-  const card = new Card(newCard, config.cardTemplate);
-
   api
     .postNewCard(newCard.name, newCard.link)
     .then((data) => {
@@ -81,8 +80,6 @@ const addCard = () => {
         config.cardsContainer
       );
       section.addItem(data);
-      closePopup(popupCardAdd);
-      config.createPlace.reset();
     })
     .finally(() => (config.createPlaceSubmit.textContent = "Создать"))
     .catch((err) => {
@@ -103,7 +100,25 @@ config.editProfile.addEventListener("click", () => {
   validator.clearValidationErrors(config.profileInputList);
   config.profileInputName.value = config.profileTitle.textContent;
   config.profileInputJob.value = config.profileSubTitle.textContent;
-  openPopup(popupProfile);
+  const editProfile = new PopupWithForm(popupProfile, (event) => {
+    event.preventDefault();
+    config.editProfileSubmit.textContent = "Сохранение...";
+    api
+      .patchUserData(
+        config.profileInputName.value,
+        config.profileInputJob.value
+      )
+      .then(() => {
+        config.profileTitle.textContent = config.profileInputName.value;
+        config.profileSubTitle.textContent = config.profileInputJob.value;
+        editProfile.close();
+      })
+      .finally(() => (config.editProfileSubmit.textContent = "Сохранить"))
+      .catch((err) => {
+        console.log(err);
+      });
+  });
+  editProfile.open();
   validator.toggleButtonState(
     config.profileInputList,
     config.editProfileSubmit
@@ -114,7 +129,13 @@ config.addPlace.addEventListener("click", () => {
   const validator = new FormValidator(validationConfig, config.createPlace);
   validator.enableValidation();
   validator.clearValidationErrors(config.createPlaceInputList);
-  openPopup(popupCardAdd);
+  const addPlace = new PopupWithForm(popupCardAdd, (event) => {
+    event.preventDefault();
+    config.createPlaceSubmit.textContent = "Создание...";
+    addCard();
+    addPlace.close();
+  });
+  addPlace.open()
   validator.toggleButtonState(
     config.createPlaceInputList,
     config.createPlaceSubmit
@@ -125,53 +146,14 @@ config.profileAvatar.addEventListener("click", () => {
   const validator = new FormValidator(validationConfig, config.avatarForm);
   validator.enableValidation();
   validator.clearValidationErrors(config.avatarInputList);
-  openPopup(popupAvatar);
-  validator.toggleButtonState(config.avatarInputList, config.avatarSubmit);
-});
-
-popupCloseButtonList.forEach((button) =>
-  button.addEventListener("click", (event) => {
-    closePopup(event.target.closest(".popup"));
-  })
-);
-
-config.deleteConfirmButton.addEventListener("click", () => {
-  api
-    .deleteHandler(config.cardForRemove.id)
-    .then(() => {
-      config.cardForRemove.remove();
-      closePopup(config.popupDeleteConfirm);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-});
-
-config.saveProfile.addEventListener("submit", (event) => {
-  event.preventDefault();
-  config.editProfileSubmit.textContent = "Сохранение...";
-  api
-    .patchUserData(config.profileInputName.value, config.profileInputJob.value)
-    .then(() => {
-      config.profileTitle.textContent = config.profileInputName.value;
-      config.profileSubTitle.textContent = config.profileInputJob.value;
-      closePopup(popupProfile);
-    })
-    .finally(() => (config.editProfileSubmit.textContent = "Сохранить"))
-    .catch((err) => {
-      console.log(err);
-    });
-});
-
-config.avatarForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  config.avatarSubmit.textContent = "Сохранение...";
+  const profileAvatar = new PopupWithForm(popupAvatar, (event) => {
+    event.preventDefault();
+    config.avatarSubmit.textContent = "Сохранение...";
   api
     .patchAvatar(config.avatarInput.value)
     .then((data) => {
       config.profileAvatar.style.backgroundImage = `url(${data.avatar})`;
-      config.avatarInput.value = "";
-      closePopup(popupAvatar);
+      profileAvatar.close();
     })
     .finally(() => {
       config.avatarSubmit.textContent = "Сохранить";
@@ -179,13 +161,69 @@ config.avatarForm.addEventListener("submit", (event) => {
     .catch((err) => {
       console.log(err);
     });
+  });
+  profileAvatar.open()
+  validator.toggleButtonState(config.avatarInputList, config.avatarSubmit);
 });
 
-config.createPlace.addEventListener("submit", (event) => {
-  event.preventDefault();
-  config.createPlaceSubmit.textContent = "Создание...";
-  addCard();
+// popupCloseButtonList.forEach((button) =>
+//   button.addEventListener("click", (event) => {
+//     closePopup(event.target.closest(".popup"));
+//   })
+// );
+
+config.deleteConfirmButton.addEventListener("click", () => {
+  api
+    .deleteHandler(config.cardForRemove.id)
+    .then(() => {
+      config.cardForRemove.remove();
+      const acceptConfirm = new Popup(config.popupDeleteConfirm)
+      acceptConfirm.close()
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 });
+
+// config.saveProfile.addEventListener("submit", (event) => {
+//   event.preventDefault();
+//   config.editProfileSubmit.textContent = "Сохранение...";
+//   api
+//     .patchUserData(config.profileInputName.value, config.profileInputJob.value)
+//     .then(() => {
+//       config.profileTitle.textContent = config.profileInputName.value;
+//       config.profileSubTitle.textContent = config.profileInputJob.value;
+//       closePopup(popupProfile);
+//     })
+//     .finally(() => (config.editProfileSubmit.textContent = "Сохранить"))
+//     .catch((err) => {
+//       console.log(err);
+//     });
+// });
+
+// config.avatarForm.addEventListener("submit", (event) => {
+//   event.preventDefault();
+//   config.avatarSubmit.textContent = "Сохранение...";
+//   api
+//     .patchAvatar(config.avatarInput.value)
+//     .then((data) => {
+//       config.profileAvatar.style.backgroundImage = `url(${data.avatar})`;
+//       config.avatarInput.value = "";
+//       closePopup(popupAvatar);
+//     })
+//     .finally(() => {
+//       config.avatarSubmit.textContent = "Сохранить";
+//     })
+//     .catch((err) => {
+//       console.log(err);
+//     });
+// });
+
+// config.createPlace.addEventListener("submit", (event) => {
+//   event.preventDefault();
+//   config.createPlaceSubmit.textContent = "Создание...";
+//   addCard();
+// });
 
 Promise.all([api.getUserData(), api.getInitialCards()])
   .then(([userData, cards]) => {

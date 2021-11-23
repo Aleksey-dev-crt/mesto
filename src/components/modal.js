@@ -1,120 +1,93 @@
-import { config } from "./config";
-
-const openPopup = (popup) => {
-  popup.classList.add(config.popupOpened);
-  document.addEventListener("keydown", closePopupByEscape);
-  document.addEventListener("click", closePopupByOverlay);
-};
-
-const closePopup = (popup) => {
-  popup.classList.remove(config.popupOpened);
-  document.removeEventListener("keydown", closePopupByEscape);
-  document.removeEventListener("click", closePopupByOverlay);
-};
-
-const closePopupByEscape = (event) => {
-  if (event.key === "Escape") {
-    const currentPopup = document.querySelector(`.${config.popupOpened}`);
-    closePopup(currentPopup);
+export class Popup {
+  constructor(popupElement) {
+    this.popupElement = popupElement
+    this._handleEscClose = this._handleEscClose.bind(this)
+    this._handleOverlayClose = this._handleOverlayClose.bind(this)
+    this._handleBtnClose = this._handleBtnClose.bind(this)
   }
-};
 
-const closePopupByOverlay = (event) => {
-  if (event.target.classList.contains("popup")) {
-    closePopup(event.target);
+  open() {
+    this.popupElement.classList.add("popup_opened");
+    this.setEventListeners()
   }
+
+  close() {
+    this.popupElement.classList.remove("popup_opened");
+    this.removeEventListeners()
+  }
+
+  _handleEscClose(event) {
+      if (event.key === "Escape") {
+        this.close()
+      }
+  }
+
+  _handleOverlayClose(event) {
+    if (event.target.classList.contains("popup")) {
+      this.close()
+    }
+  }
+
+  _handleBtnClose(event) {
+    if (event.target.classList.contains("popup__button-close")) {
+      this.close()
+    }
 };
 
-export { openPopup, closePopup };
+  setEventListeners() {
+    document.addEventListener("keydown", this._handleEscClose);
+    document.addEventListener("click", this._handleOverlayClose);
+    document.addEventListener("click", this._handleBtnClose);
+  }
 
+  removeEventListeners() {
+    document.removeEventListener("keydown", this._handleEscClose);
+    document.removeEventListener("click", this._handleOverlayClose);
+    document.removeEventListener("click", this._handleBtnClose);
+  }
 
+}
 
+export class PopupWithImage extends Popup {
+  constructor(popupElement, imageSrc, imageName, imageElement, imageCaption) {
+    super(popupElement)
+    this.imageSrc = imageSrc
+    this.imageName = imageName
+    this.imageElement = imageElement
+    this.imageCaption = imageCaption
+  }
 
+  open() {
+    super.open();
+    this.imageElement.src = this.imageSrc;
+    this.imageElement.alt = this.imageName;
+    this.imageCaption.textContent = this.imageName;
+  }
+}
 
+export class PopupWithForm extends Popup {
+  constructor(popupElement, submitHandler) {
+    super(popupElement);
+    this.submitHandler = submitHandler;
+  }
 
-// //================================================================// Popup.js
-// // Создайте класс Popup, который отвечает за открытие и закрытие попапа
-// class Popup {
-//   constructor(popupElement) { // Принимает в конструктор единственный параметр — селектор попапа
-//     this.popup = popupElement
-//   }
+  _getInputValues() {
+    // собирает данные всех полей формы
+  }
 
-//   // Содержит публичные методы open и close, которые отвечают за открытие и закрытие попапа
-//   open() {
-//     this.popup.classList.add(config.popupOpened);
-//     document.addEventListener("keydown", this._handleEscClose);
-//     document.addEventListener("click", this._handleOverlayClose);
-//   }
+  setEventListeners() {
+    super.setEventListeners();
+    this.popupElement.addEventListener("submit", this.submitHandler)
+  }
 
-//   close() {
-//     this.popup.classList.remove(config.popupOpened);
-//     document.removeEventListener("keydown", this._handleEscClose);
-//     document.removeEventListener("click", this._handleOverlayClose);
-//   }
+  removeEventListeners() {
+    super.removeEventListeners();
+    this.popupElement.removeEventListener("submit", this.submitHandler)
+  }
 
-//   // Содержит приватный метод _handleEscClose, который содержит логику закрытия попапа клавишей Esc
-//   _handleEscClose(event) {
-//     if (event.key === "Escape") {
-//       const currentPopup = document.querySelector(`.${config.popupOpened}`);
-//       closePopup(currentPopup);
-//     }
-//   }
-
-//   //Про _handleOverlayClose ничего не сказано
-//   _handleOverlayClose(event) {
-//     if (event.target.classList.contains("popup")) {
-//       closePopup(event.target);
-//     }
-//   }
-
-//   // Содержит публичный метод setEventListeners, который добавляет слушатель клика иконке закрытия попапа. Модальное окно также закрывается при клике на затемнённую область вокруг формы.
-//   setEventListeners(closeBtnElement) {
-//     closeBtnElement.addEventListener('click', this.close)
-//   }
-
-// }
-
-// //================================================================// PopupWithImage.js
-// // Создайте класс PopupWithImage
-// class PopupWithImage extends Popup {
-//   constructor(popupElement) {
-//     super(popupElement)
-//   }
-
-//   open() {
-//     super.open();
-//     // в методе open класса PopupWithImage нужно вставлять в попап картинку с src изображения и подписью к картинке
-//     const image = config.image;
-//     image.src = cardData.link;
-//     image.alt = cardData.name;
-//     config.popupPictureCaption.textContent = cardData.name;
-//   }
-// }
-
-
-// //================================================================//  PopupWithForm.js
-// // Создайте класс PopupWithForm
-// class PopupWithForm extends Popup {
-//   constructor(popupElement, submitHandler) {
-//     super(popupElement);
-//     this.submitHandler = submitHandler; // Кроме селектора попапа принимает в конструктор колбэк сабмита формы. В этом колбэке содержится метод класса Api
-//   }
-
-//   _getInputValues() {
-//     // собирает данные всех полей формы
-//   }
-
-//   setEventListeners() {
-//     super.setEventListeners();
-//     // должен не только добавлять обработчик клика иконке закрытия, но и добавлять обработчик сабмита формы
-//   }
-
-//   close() {
-//     super.close();
-//     // форма должна ещё и сбрасываться
-//   }
-
-
-//   // Для каждого попапа создавайте свой экземпляр класса PopupWithForm
-// }
+  close() {
+    super.close();
+    this.popupElement.querySelector(".popup__form").reset()
+  }
+}
 
