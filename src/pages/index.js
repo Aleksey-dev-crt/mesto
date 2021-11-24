@@ -1,17 +1,11 @@
-import { config } from "../components/config";
-//import { createCard } from "../components/card";
-//import { closePopup, openPopup } from "../components/modal";
-// import {
-//   enableValidation,
-//   clearValidationErrors,
-//   toggleButtonState,
-// } from "../components/validate";
-
-import { api } from "../components/api";
-import Card from "../components/card";
-import FormValidator from "../components/validate";
-import Section from "../components/section";
-import { Popup, PopupWithForm } from "../components/modal";
+import { config } from "../components/Config";
+import Api from "../components/Api";
+import Card from "../components/Card";
+import FormValidator from "../components/FormValidator";
+import Section from "../components/Section";
+import Popup from "../components/Popup";
+import PopupWithForm from "../components/PopupWithForm";
+import PopupWithImage from "../components/PopupWithImage";
 import UserInfo from "../components/UserInfo";
 
 import "./index.css";
@@ -55,13 +49,19 @@ const Images = [
 
 const popupCardAdd = document.querySelector(`.${config.popupCardAdd}`);
 const popupProfile = document.querySelector(`.${config.popupProfile}`);
+const popupImage = document.querySelector(`.${config.popupImage}`);
 const popupAvatar = document.querySelector(`.${config.popupAvatar}`);
-// const popupCloseButtonList = Array.from(
-//   document.querySelectorAll(`.${config.popupCloseBtn}`)
-// );
 const validationConfig = {
   inputErrorClass: "popup__input_type_error",
 };
+
+const api = new Api({
+  baseUrl: "https://nomoreparties.co/v1/plus-cohort-3",
+  headers: {
+    authorization: "404cf7e6-f742-45c3-8054-e5f1c388edbf",
+    "Content-Type": "application/json",
+  },
+});
 const userInfo = new UserInfo(
   { userName: config.profileInputName, userInfo: config.profileInputJob },
   api
@@ -78,8 +78,17 @@ const addCard = () => {
         {
           items: data,
           renderer: (item) => {
-            const card = new Card(item, config.cardTemplate);
-            return card.createCard(data);
+            const card = new Card(item, config.cardTemplate, api, () => {
+              const image = new PopupWithImage(
+                popupImage,
+                item.link,
+                item.name,
+                config.image,
+                config.popupPictureCaption
+              );
+              image.open();
+            });
+            return card.createCard();
           },
         },
         config.cardsContainer
@@ -92,13 +101,6 @@ const addCard = () => {
     });
 };
 
-// const initial = (data, container) => {
-//   data.forEach((card) => {
-//     card = new Card(card, config.cardTemplate);
-//     container.append(card.createCard(card.cardData));
-//   });
-// };
-
 config.editProfile.addEventListener("click", () => {
   const validator = new FormValidator(validationConfig, config.saveProfile);
   validator.enableValidation();
@@ -108,26 +110,12 @@ config.editProfile.addEventListener("click", () => {
   const editProfile = new PopupWithForm(popupProfile, (event) => {
     event.preventDefault();
     config.editProfileSubmit.textContent = "Сохранение...";
-    // api
-    //   .patchUserData(
-    //     config.profileInputName.value,
-    //     config.profileInputJob.value
-    //   )
     userInfo.setUserInfo(
       config.profileTitle,
       config.profileSubTitle,
       config.editProfileSubmit,
       editProfile
     );
-    // .then(() => {
-    //   config.profileTitle.textContent = config.profileInputName.value;
-    //   config.profileSubTitle.textContent = config.profileInputJob.value;
-    //   editProfile.close();
-    // })
-    // .finally(() => (config.editProfileSubmit.textContent = "Сохранить"))
-    // .catch((err) => {
-    //   console.log(err);
-    // });
   });
   editProfile.open();
   validator.toggleButtonState(
@@ -177,12 +165,6 @@ config.profileAvatar.addEventListener("click", () => {
   validator.toggleButtonState(config.avatarInputList, config.avatarSubmit);
 });
 
-// popupCloseButtonList.forEach((button) =>
-//   button.addEventListener("click", (event) => {
-//     closePopup(event.target.closest(".popup"));
-//   })
-// );
-
 config.deleteConfirmButton.addEventListener("click", () => {
   api
     .deleteHandler(config.cardForRemove.id)
@@ -196,49 +178,8 @@ config.deleteConfirmButton.addEventListener("click", () => {
     });
 });
 
-// config.saveProfile.addEventListener("submit", (event) => {
-//   event.preventDefault();
-//   config.editProfileSubmit.textContent = "Сохранение...";
-//   api
-//     .patchUserData(config.profileInputName.value, config.profileInputJob.value)
-//     .then(() => {
-//       config.profileTitle.textContent = config.profileInputName.value;
-//       config.profileSubTitle.textContent = config.profileInputJob.value;
-//       closePopup(popupProfile);
-//     })
-//     .finally(() => (config.editProfileSubmit.textContent = "Сохранить"))
-//     .catch((err) => {
-//       console.log(err);
-//     });
-// });
-
-// config.avatarForm.addEventListener("submit", (event) => {
-//   event.preventDefault();
-//   config.avatarSubmit.textContent = "Сохранение...";
-//   api
-//     .patchAvatar(config.avatarInput.value)
-//     .then((data) => {
-//       config.profileAvatar.style.backgroundImage = `url(${data.avatar})`;
-//       config.avatarInput.value = "";
-//       closePopup(popupAvatar);
-//     })
-//     .finally(() => {
-//       config.avatarSubmit.textContent = "Сохранить";
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//     });
-// });
-
-// config.createPlace.addEventListener("submit", (event) => {
-//   event.preventDefault();
-//   config.createPlaceSubmit.textContent = "Создание...";
-//   addCard();
-// });
-
 Promise.all([userInfo.getUserInfo(), api.getInitialCards()])
   .then(([userData, cards]) => {
-    console.log(userData);
     config.profileTitle.textContent = userData.name;
     config.profileSubTitle.textContent = userData.about;
     config.profileAvatar.style.backgroundImage = `url(${userData.avatar})`;
@@ -247,8 +188,17 @@ Promise.all([userInfo.getUserInfo(), api.getInitialCards()])
       {
         items: cards,
         renderer: (item) => {
-          const card = new Card(item, config.cardTemplate);
-          return card.createCard(card.cardData);
+          const card = new Card(item, config.cardTemplate, api, () => {
+            const image = new PopupWithImage(
+              popupImage,
+              item.link,
+              item.name,
+              config.image,
+              config.popupPictureCaption
+            );
+            image.open();
+          });
+          return card.createCard();
         },
       },
       config.cardsContainer

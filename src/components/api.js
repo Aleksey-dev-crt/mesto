@@ -1,12 +1,4 @@
-// const configAPI = {
-//   baseUrl: "https://nomoreparties.co/v1/plus-cohort-3",
-//   headers: {
-//     authorization: "404cf7e6-f742-45c3-8054-e5f1c388edbf",
-//     "Content-Type": "application/json",
-//   },
-// };
-
-class Api {
+export default class Api {
   constructor(options) {
     this.baseUrl = options.baseUrl,
     this.headers = options.headers
@@ -77,22 +69,3 @@ class Api {
     }).then(this._checkResponse);
   }
 }
-
-
-export const api = new Api({
-  baseUrl: "https://nomoreparties.co/v1/plus-cohort-3",
-  headers: {
-    authorization: "404cf7e6-f742-45c3-8054-e5f1c388edbf",
-    "Content-Type": "application/json",
-  }
-});
-
-// export {
-//   getInitialCards,
-//   getUserData,
-//   patchUserData,
-//   postNewCard,
-//   likeHandler,
-//   deleteHandler,
-//   patchAvatar,
-// };
