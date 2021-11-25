@@ -1,82 +1,91 @@
-import { config } from "./Config";
-import Popup from "./Popup";
-
 export default class Card {
-  constructor(cardData, cardTemplate, api, handleCardClick) {
+  constructor(
+    cardData,
+    cardTemplate,
+    config,
+    api,
+    handleCardClick,
+    deleteConfirm
+  ) {
     this.cardData = cardData;
     this.cardTemplate = cardTemplate;
+    this.config = config;
+    this.cardElement = this.cardTemplate
+      .querySelector(this.config.cardElement)
+      .cloneNode(true);
+    this._cardLike = this.cardElement.querySelector(this.config.cardLike);
+    this._likesCounter = this.cardElement.querySelector(
+      this.config.likesCounter
+    );
+    this._elementImage = this.cardElement.querySelector(
+      this.config.elementImage
+    );
+    this._deleteButton = this.cardElement.querySelector(this.config.cardDelete);
     this._handleDeleteButton = this._handleDeleteButton.bind(this);
-    this.handleCardClick = handleCardClick;
     this.api = api;
+    this.handleCardClick = handleCardClick;
+    this.deleteConfirm = deleteConfirm;
   }
 
-  _changeLikeState(cardData, cardElement, event) {
-    const likesCounter = cardElement.querySelector(config.likesCounter);
-    const cardLike = cardElement.querySelector(config.cardLike);
-    likesCounter.textContent = cardData.likes.length.toString();
-    if (cardData.likes.some((el) => el._id == config.userId)) {
-      cardLike.classList.add(config.cardLikeActive);
-      if (event) {
-        this.api
-          .likeHandler(cardData._id, "DELETE")
-          .then((res) => {
-            event.target.classList.remove(config.cardLikeActive);
-            likesCounter.textContent = res.likes.length.toString();
-            cardData.likes = res.likes;
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      }
+  _setLikesCount() {
+    this._likesCounter.textContent = this.cardData.likes.length.toString();
+    if (this.cardData.likes.some((el) => el._id == this.config.userId)) {
+      this._cardLike.classList.add(this.config.cardLikeActive);
     } else {
-      cardLike.classList.remove(config.cardLikeActive);
-      if (event) {
-        this.api
-          .likeHandler(cardData._id, "PUT")
-          .then((res) => {
-            event.target.classList.add(config.cardLikeActive);
-            likesCounter.textContent = res.likes.length.toString();
-            cardData.likes = res.likes;
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      }
+      this._cardLike.classList.remove(this.config.cardLikeActive);
+    }
+  }
+
+  _changeLikeState() {
+    if (this._cardLike.classList.contains(this.config.cardLikeActive)) {
+      this.api
+        .likeHandler(this.cardData._id, "DELETE")
+        .then((res) => {
+          this._cardLike.classList.remove(this.config.cardLikeActive);
+          this._likesCounter.textContent = res.likes.length.toString();
+          this.cardData.likes = res.likes;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      this.api
+        .likeHandler(this.cardData._id, "PUT")
+        .then((res) => {
+          this._cardLike.classList.add(this.config.cardLikeActive);
+          this._likesCounter.textContent = res.likes.length.toString();
+          this.cardData.likes = res.likes;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
   }
 
   _handleDeleteButton(event) {
     event.target.parentElement.id = this.cardData._id;
-    config.cardForRemove = event.target.parentElement;
-    const deleteConfirm = new Popup(config.popupDeleteConfirm);
-    deleteConfirm.open();
+    this.config.cardForRemove = event.target.parentElement;
+    this.deleteConfirm.open();
+  }
+
+  _setEventListeners() {
+    this._elementImage.addEventListener("click", this.handleCardClick);
+    this._deleteButton.addEventListener("click", this._handleDeleteButton);
+    this._cardLike.addEventListener("click", () => {
+      this._changeLikeState();
+    });
   }
 
   createCard() {
-    const cardElement = config.cardTemplate
-      .querySelector(config.cardElement)
-      .cloneNode(true);
-    const elementImage = cardElement.querySelector(config.elementImage);
-    const deleteButton = cardElement.querySelector(config.cardDelete);
-
-    this._changeLikeState(this.cardData, cardElement);
-
-    elementImage.src = this.cardData.link;
-    elementImage.alt = this.cardData.name;
-    elementImage.addEventListener("click", this.handleCardClick);
-    cardElement.querySelector(config.cardTitle).textContent =
+    this._setLikesCount();
+    this._elementImage.src = this.cardData.link;
+    this._elementImage.alt = this.cardData.name;
+    this.cardElement.querySelector(this.config.cardTitle).textContent =
       this.cardData.name;
-    if (this.cardData.owner._id != config.userId)
-      deleteButton.style.display = "none";
+    if (this.cardData.owner._id != this.config.userId)
+    this._deleteButton.style.display = "none";
+    this._setEventListeners();
 
-    deleteButton.addEventListener("click", this._handleDeleteButton);
-
-    cardElement
-      .querySelector(config.cardLike)
-      .addEventListener("click", (event) => {
-        this._changeLikeState(this.cardData, cardElement, event);
-      });
-
-    return cardElement;
+    return this.cardElement;
   }
 }

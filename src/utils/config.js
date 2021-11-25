@@ -35,6 +35,7 @@ export const config = {
   profileAvatar: document.querySelector(".profile__avatar"),
   addPlace: document.querySelector(".profile__add-button"),
   deleteConfirmButton: document.querySelector(".popup__button-save_type_confirm"),
+  deleteConfirmForm: document.forms.confirm,
   likesCounter: ".element__likes-counter",
   userId: "",
   cardForRemove: {}
