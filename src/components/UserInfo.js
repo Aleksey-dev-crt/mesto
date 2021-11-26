@@ -1,26 +1,21 @@
+
 export default class UserInfo {
-  constructor({userName, userInfo}, api) {
+  constructor({userName, userInfo}, config, userData) {
     this.userName = userName;
     this.userInfo = userInfo;
-    this.api = api
+    this.config = config;
+    this.userData = userData;
   }
 
   getUserInfo() {
-    return this.api.getUserData()
+    this.config.profileInputName.value = this.userName.textContent;
+    this.config.profileInputJob.value = this.userInfo.textContent;
   }
 
-  setUserInfo(profileName, profileJob, submitButton, popup) {
-    return this.api.patchUserData(
-      this.userName.value,
-      this.userInfo.value
-    ).then(() => {
-      profileName.textContent = this.userName.value;
-      profileJob.textContent = this.userInfo.value;
-      popup.close();
-    })
-    .finally(() => (submitButton.textContent = "Сохранить"))
-    .catch((err) => {
-      console.log(err);
-    });
+  setUserInfo(userData) {
+    this.userName.textContent = userData.name;
+    this.userInfo.textContent = userData.about;
+    this.config.profileAvatar.style.backgroundImage = `url(${userData.avatar})`;
+    this.config.userId = userData._id;
   }
 }

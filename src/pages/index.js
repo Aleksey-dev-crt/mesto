@@ -1,5 +1,5 @@
 import { config } from "../utils/config";
-import * as constans from "../utils/constans"
+import * as constants from "../utils/constants";
 import Api from "../components/Api";
 import Card from "../components/Card";
 import FormValidator from "../components/FormValidator";
@@ -10,8 +10,6 @@ import UserInfo from "../components/UserInfo";
 
 import "./index.css";
 
-
-
 const api = new Api({
   baseUrl: "https://nomoreparties.co/v1/plus-cohort-3",
   headers: {
@@ -19,53 +17,60 @@ const api = new Api({
     "Content-Type": "application/json",
   },
 });
+
 const userInfo = new UserInfo(
-  { userName: config.profileInputName, userInfo: config.profileInputJob },
-  api
+  { userName: config.profileTitle, userInfo: config.profileSubTitle },
+  config,
+  api.getUserData()
 );
 
-const section = new Section(
-    (item) => {
-      const card = new Card(item, config.cardTemplate, config, api, () => {
-        const image = new PopupWithImage(
-          constans.popupImage,
-          item.link,
-          item.name,
-          config.image,
-          config.popupPictureCaption
-        );
-        image.open();
-      },
-      deleteConfirm
+const section = new Section((item) => {
+  const card = new Card(
+    item,
+    config.cardTemplate,
+    config,
+    api,
+    () => {
+      const image = new PopupWithImage(
+        constants.popupImage,
+        config.image,
+        config.popupPictureCaption
       );
-      return card.createCard();
+      image.open(item.link, item.name);
     },
-  config.cardsContainer
-);
-
-const editProfile = new PopupWithForm(constans.popupProfile, (event) => {
-  event.preventDefault();
-  config.editProfileSubmit.textContent = "Сохранение...";
-  userInfo.setUserInfo(
-    config.profileTitle,
-    config.profileSubTitle,
-    config.editProfileSubmit,
-    editProfile
+    deleteConfirm
   );
+  return card.createCard();
+}, config.cardsContainer);
+
+const editProfile = new PopupWithForm(constants.popupProfile, (formValues) => {
+  config.editProfileSubmit.textContent = "Сохранение...";
+  api.patchUserData(
+    formValues.name,
+    formValues.job
+  )
+  .then(() => {
+    config.profileTitle.textContent = formValues.name;
+    config.profileSubTitle.textContent = formValues.job;
+  })
+    .then(() => {
+      editProfile.close();
+    })
+    .finally(() => (config.editProfileSubmit.textContent = "Сохранить"))
+    .catch((err) => {
+      console.log(err);
+    });
 });
 
-const addPlace = new PopupWithForm(constans.popupCardAdd, (event) => {
-  event.preventDefault();
+const addPlace = new PopupWithForm(constants.popupCardAdd, (formValues) => {
   config.createPlaceSubmit.textContent = "Создание...";
-  addCard();
-  addPlace.close();
+  addCard(formValues);
 });
 
-const profileAvatar = new PopupWithForm(constans.popupAvatar, (event) => {
-  event.preventDefault();
+const profileAvatar = new PopupWithForm(constants.popupAvatar, (formValues) => {
   config.avatarSubmit.textContent = "Сохранение...";
   api
-    .patchAvatar(config.avatarInput.value)
+    .patchAvatar(formValues.link_avatar)
     .then((data) => {
       config.profileAvatar.style.backgroundImage = `url(${data.avatar})`;
       profileAvatar.close();
@@ -78,8 +83,7 @@ const profileAvatar = new PopupWithForm(constans.popupAvatar, (event) => {
     });
 });
 
-const deleteConfirm = new PopupWithForm(config.popupDeleteConfirm, (event) => {
-  event.preventDefault();
+const deleteConfirm = new PopupWithForm(config.popupDeleteConfirm, () => {
   api
     .deleteHandler(config.cardForRemove.id)
     .then(() => {
@@ -91,14 +95,30 @@ const deleteConfirm = new PopupWithForm(config.popupDeleteConfirm, (event) => {
     });
 });
 
-const addCard = () => {
-  const newCard = {};
-  newCard.name = config.placeInputTitle.value;
-  newCard.link = config.placeInputLink.value;
+const editProfileValidator = new FormValidator(
+  constants.validationConfig,
+  config.saveProfile
+);
+editProfileValidator.enableValidation();
+
+const addPlaceValidator = new FormValidator(
+  constants.validationConfig,
+  config.createPlace
+);
+addPlaceValidator.enableValidation();
+
+const profileAvatarValidator = new FormValidator(
+  constants.validationConfig,
+  config.avatarForm
+);
+profileAvatarValidator.enableValidation();
+
+const addCard = (formValues) => {
   api
-    .postNewCard(newCard.name, newCard.link)
+    .postNewCard(formValues.title, formValues.link)
     .then((data) => {
       section.addItem(data);
+      addPlace.close();
     })
     .finally(() => (config.createPlaceSubmit.textContent = "Создать"))
     .catch((err) => {
@@ -107,46 +127,27 @@ const addCard = () => {
 };
 
 config.editProfile.addEventListener("click", () => {
-  const validator = new FormValidator(constans.validationConfig, config.saveProfile);
-  validator.enableValidation();
-  validator.clearValidationErrors(config.profileInputList);
-  config.profileInputName.value = config.profileTitle.textContent;
-  config.profileInputJob.value = config.profileSubTitle.textContent;
-
+  editProfileValidator.clearValidationErrors();
+  userInfo.getUserInfo()
   editProfile.open();
-  validator.toggleButtonState(
-    config.profileInputList,
-    config.editProfileSubmit
-  );
+  editProfileValidator.toggleButtonState();
 });
 
 config.addPlace.addEventListener("click", () => {
-  const validator = new FormValidator(constans.validationConfig, config.createPlace);
-  validator.enableValidation();
-  validator.clearValidationErrors(config.createPlaceInputList);
-
+  addPlaceValidator.clearValidationErrors();
   addPlace.open();
-  validator.toggleButtonState(
-    config.createPlaceInputList,
-    config.createPlaceSubmit
-  );
+  addPlaceValidator.toggleButtonState();
 });
 
 config.profileAvatar.addEventListener("click", () => {
-  const validator = new FormValidator(constans.validationConfig, config.avatarForm);
-  validator.enableValidation();
-  validator.clearValidationErrors(config.avatarInputList);
-
+  profileAvatarValidator.clearValidationErrors();
   profileAvatar.open();
-  validator.toggleButtonState(config.avatarInputList, config.avatarSubmit);
+  profileAvatarValidator.toggleButtonState();
 });
 
-Promise.all([userInfo.getUserInfo(), api.getInitialCards()])
+Promise.all([api.getUserData(), api.getInitialCards()])
   .then(([userData, cards]) => {
-    config.profileTitle.textContent = userData.name;
-    config.profileSubTitle.textContent = userData.about;
-    config.profileAvatar.style.backgroundImage = `url(${userData.avatar})`;
-    config.userId = userData._id;
+    userInfo.setUserInfo(userData)
     section.renderItems(cards);
   })
   .catch((err) => {
