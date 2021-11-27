@@ -23,20 +23,19 @@ const userInfo = new UserInfo(
   config
 );
 
+const image = new PopupWithImage(
+  constants.popupImage,
+  config.image,
+  config.popupPictureCaption
+);
+
 const section = new Section((item) => {
   const card = new Card(
     item,
     config.cardTemplate,
     config,
     api,
-    () => {
-      const image = new PopupWithImage(
-        constants.popupImage,
-        config.image,
-        config.popupPictureCaption
-      );
-      image.open(item.link, item.name);
-    },
+    () => image.open(item.link, item.name),
     deleteConfirm
   );
   return card.createCard();
@@ -46,9 +45,8 @@ const editProfile = new PopupWithForm(constants.popupProfile, (formValues) => {
   config.editProfileSubmit.textContent = "Сохранение...";
   api
     .patchUserData(formValues.name, formValues.job)
-    .then(() => {
-      config.profileTitle.textContent = formValues.name;
-      config.profileSubTitle.textContent = formValues.job;
+    .then((data) => {
+      userInfo.setUserInfo(data);
       editProfile.close();
     })
     .finally(() => (config.editProfileSubmit.textContent = "Сохранить"))
@@ -67,7 +65,7 @@ const profileAvatar = new PopupWithForm(constants.popupAvatar, (formValues) => {
   api
     .patchAvatar(formValues.link_avatar)
     .then((data) => {
-      config.profileAvatar.style.backgroundImage = `url(${data.avatar})`;
+      userInfo.setUserInfo(data);
       profileAvatar.close();
     })
     .finally(() => {
@@ -114,7 +112,7 @@ const addCard = (formValues) => {
     .then((data) => {
       section.addItem(data);
       addPlace.close();
-    })
+    }).then()
     .finally(() => (config.createPlaceSubmit.textContent = "Создать"))
     .catch((err) => {
       console.log(err);
@@ -123,7 +121,8 @@ const addCard = (formValues) => {
 
 config.editProfile.addEventListener("click", () => {
   editProfileValidator.clearValidationErrors();
-  userInfo.getUserInfo();
+  config.profileInputName.value = userInfo.getUserInfo().name;
+  config.profileInputJob.value = userInfo.getUserInfo().about;
   editProfile.open();
   editProfileValidator.toggleButtonState();
 });
