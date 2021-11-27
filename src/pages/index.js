@@ -20,8 +20,7 @@ const api = new Api({
 
 const userInfo = new UserInfo(
   { userName: config.profileTitle, userInfo: config.profileSubTitle },
-  config,
-  api.getUserData()
+  config
 );
 
 const section = new Section((item) => {
@@ -45,15 +44,11 @@ const section = new Section((item) => {
 
 const editProfile = new PopupWithForm(constants.popupProfile, (formValues) => {
   config.editProfileSubmit.textContent = "Сохранение...";
-  api.patchUserData(
-    formValues.name,
-    formValues.job
-  )
-  .then(() => {
-    config.profileTitle.textContent = formValues.name;
-    config.profileSubTitle.textContent = formValues.job;
-  })
+  api
+    .patchUserData(formValues.name, formValues.job)
     .then(() => {
+      config.profileTitle.textContent = formValues.name;
+      config.profileSubTitle.textContent = formValues.job;
       editProfile.close();
     })
     .finally(() => (config.editProfileSubmit.textContent = "Сохранить"))
@@ -128,7 +123,7 @@ const addCard = (formValues) => {
 
 config.editProfile.addEventListener("click", () => {
   editProfileValidator.clearValidationErrors();
-  userInfo.getUserInfo()
+  userInfo.getUserInfo();
   editProfile.open();
   editProfileValidator.toggleButtonState();
 });
@@ -147,7 +142,7 @@ config.profileAvatar.addEventListener("click", () => {
 
 Promise.all([api.getUserData(), api.getInitialCards()])
   .then(([userData, cards]) => {
-    userInfo.setUserInfo(userData)
+    userInfo.setUserInfo(userData);
     section.renderItems(cards);
   })
   .catch((err) => {
