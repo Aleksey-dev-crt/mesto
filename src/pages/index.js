@@ -113,7 +113,6 @@ const addCard = (formValues) => {
       section.addItem(data);
       addPlace.close();
     })
-    .then()
     .finally(() => (config.createPlaceSubmit.textContent = "Создать"))
     .catch((err) => {
       console.log(err);
