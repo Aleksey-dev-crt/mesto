@@ -57,7 +57,16 @@ const editProfile = new PopupWithForm(constants.popupProfile, (formValues) => {
 
 const addPlace = new PopupWithForm(constants.popupCardAdd, (formValues) => {
   config.createPlaceSubmit.textContent = "Создание...";
-  addCard(formValues);
+  api
+    .postNewCard(formValues.title, formValues.link)
+    .then((data) => {
+      section.addItem(data);
+      addPlace.close();
+    })
+    .finally(() => (config.createPlaceSubmit.textContent = "Создать"))
+    .catch((err) => {
+      console.log(err);
+    });
 });
 
 const profileAvatar = new PopupWithForm(constants.popupAvatar, (formValues) => {
@@ -105,19 +114,6 @@ const profileAvatarValidator = new FormValidator(
   config.avatarForm
 );
 profileAvatarValidator.enableValidation();
-
-const addCard = (formValues) => {
-  api
-    .postNewCard(formValues.title, formValues.link)
-    .then((data) => {
-      section.addItem(data);
-      addPlace.close();
-    })
-    .finally(() => (config.createPlaceSubmit.textContent = "Создать"))
-    .catch((err) => {
-      console.log(err);
-    });
-};
 
 config.editProfile.addEventListener("click", () => {
   editProfileValidator.clearValidationErrors();
