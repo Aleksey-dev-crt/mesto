@@ -112,7 +112,8 @@ const addCard = (formValues) => {
     .then((data) => {
       section.addItem(data);
       addPlace.close();
-    }).then()
+    })
+    .then()
     .finally(() => (config.createPlaceSubmit.textContent = "Создать"))
     .catch((err) => {
       console.log(err);
@@ -121,8 +122,9 @@ const addCard = (formValues) => {
 
 config.editProfile.addEventListener("click", () => {
   editProfileValidator.clearValidationErrors();
-  config.profileInputName.value = userInfo.getUserInfo().name;
-  config.profileInputJob.value = userInfo.getUserInfo().about;
+  const { name, about } = userInfo.getUserInfo();
+  config.profileInputName.value = name;
+  config.profileInputJob.value = about;
   editProfile.open();
   editProfileValidator.toggleButtonState();
 });

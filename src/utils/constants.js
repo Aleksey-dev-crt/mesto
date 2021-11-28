@@ -1,11 +1,14 @@
-import { config } from "./config"
+import { config } from "./config";
 
 export const deleteIcon = new URL("../images/Delete-Icon.svg", import.meta.url);
 export const elementLikeActive = new URL(
   "../images/Element-Like_active.svg",
   import.meta.url
 );
-export const elementLike = new URL("../images/Element-Like.svg", import.meta.url);
+export const elementLike = new URL(
+  "../images/Element-Like.svg",
+  import.meta.url
+);
 export const logo = new URL("../images/Logo.svg", import.meta.url);
 export const modalCloseIcon = new URL(
   "../images/Modal-Close-Icon.svg",
@@ -23,7 +26,10 @@ export const placeholderImage = new URL(
   "../images/placeholder-image.jpg",
   import.meta.url
 );
-export const profileAvatar = new URL("../images/Profile-Avatar.jpg", import.meta.url);
+export const profileAvatar = new URL(
+  "../images/Profile-Avatar.jpg",
+  import.meta.url
+);
 
 export const Images = [
   { name: "Delete Icon", image: deleteIcon },
@@ -43,4 +49,5 @@ export const popupImage = document.querySelector(`.${config.popupImage}`);
 export const popupAvatar = document.querySelector(`.${config.popupAvatar}`);
 export const validationConfig = {
   inputErrorClass: "popup__input_type_error",
+  buttonDisabledClass: "popup__button-save_type_disabled",
 };

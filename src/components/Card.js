@@ -66,7 +66,6 @@ export default class Card {
     event.target.parentElement.id = this.cardData._id;
     this.config.cardForRemove = event.target.parentElement;
     this.deleteConfirm.open();
-    this.config.deleteConfirmButton.disabled = false;
   }
 
   _setEventListeners() {
@@ -84,7 +83,7 @@ export default class Card {
     this.cardElement.querySelector(this.config.cardTitle).textContent =
       this.cardData.name;
     if (this.cardData.owner._id != this.config.userId)
-    this._deleteButton.style.display = "none";
+      this._deleteButton.style.display = "none";
     this._setEventListeners();
 
     return this.cardElement;
