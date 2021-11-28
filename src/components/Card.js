@@ -66,6 +66,7 @@ export default class Card {
     event.target.parentElement.id = this.cardData._id;
     this.config.cardForRemove = event.target.parentElement;
     this.deleteConfirm.open();
+    this.config.deleteConfirmButton.focus();
   }
 
   _setEventListeners() {
