@@ -1,133 +1,53 @@
-import { config } from "../components/config";
-import { createCard } from "../components/card";
-import { closePopup, openPopup } from "../components/modal";
-import {
-  enableValidation,
-  clearValidationErrors,
-  toggleButtonState,
-} from "../components/validate";
-import {
-  getInitialCards,
-  getUserData,
-  patchUserData,
-  postNewCard,
-  patchAvatar,
-  deleteHandler,
-} from "../components/api";
+import { config } from "../utils/config";
+import * as constants from "../utils/constants";
+import Api from "../components/Api";
+import Card from "../components/Card";
+import FormValidator from "../components/FormValidator";
+import Section from "../components/Section";
+import PopupWithForm from "../components/PopupWithForm";
+import PopupWithImage from "../components/PopupWithImage";
+import UserInfo from "../components/UserInfo";
 
 import "./index.css";
 
-
-const deleteIcon = new URL("../images/Delete-Icon.svg", import.meta.url);
-const elementLikeActive = new URL(
-  "../images/Element-Like_active.svg",
-  import.meta.url
-);
-const elementLike = new URL("../images/Element-Like.svg", import.meta.url);
-const logo = new URL("../images/Logo.svg", import.meta.url);
-const modalCloseIcon = new URL(
-  "../images/Modal-Close-Icon.svg",
-  import.meta.url
-);
-const profileAddButton = new URL(
-  "../images/Profile-Add_button.svg",
-  import.meta.url
-);
-const profileEditButton = new URL(
-  "../images/Profile-Edit_button.svg",
-  import.meta.url
-);
-const placeholderImage = new URL(
-  "../images/placeholder-image.jpg",
-  import.meta.url
-);
-const profileAvatar = new URL("../images/Profile-Avatar.jpg", import.meta.url);
-
-const Images = [
-  { name: "Delete Icon", image: deleteIcon },
-  { name: "Like Active", link: elementLikeActive },
-  { name: "Like", link: elementLike },
-  { name: "Logo", image: logo },
-  { name: "Close Modal", link: modalCloseIcon },
-  { name: "Add Button", link: profileAddButton },
-  { name: "Edit Button", image: profileEditButton },
-  { name: "Placeholder Image", link: placeholderImage },
-  { name: "Profile Avatar", link: profileAvatar },
-];
-
-const popupCardAdd = document.querySelector(`.${config.popupCardAdd}`);
-const popupProfile = document.querySelector(`.${config.popupProfile}`);
-const popupAvatar = document.querySelector(`.${config.popupAvatar}`);
-const popupCloseButtonList = Array.from(
-  document.querySelectorAll(`.${config.popupCloseBtn}`)
-);
-
-const addCard = () => {
-  const newCard = {};
-  newCard.name = config.placeInputTitle.value;
-  newCard.link = config.placeInputLink.value;
-
-  postNewCard(newCard.name, newCard.link)
-    .then((data) => {
-      config.cardsContainer.prepend(createCard(data));
-      closePopup(popupCardAdd);
-      config.createPlace.reset();
-    })
-    .finally(() => (config.createPlaceSubmit.textContent = "Создать"))
-    .catch((err) => {
-      console.log(err);
-    });
-};
-
-const initial = (data, container) => {
-  data.forEach((card) => container.append(createCard(card)));
-};
-
-config.editProfile.addEventListener("click", () => {
-  clearValidationErrors(config.profileInputList);
-  config.profileInputName.value = config.profileTitle.textContent;
-  config.profileInputJob.value = config.profileSubTitle.textContent;
-  openPopup(popupProfile);
-  toggleButtonState(config.profileInputList, config.editProfileSubmit);
+const api = new Api({
+  baseUrl: "https://nomoreparties.co/v1/plus-cohort-3",
+  headers: {
+    authorization: "404cf7e6-f742-45c3-8054-e5f1c388edbf",
+    "Content-Type": "application/json",
+  },
 });
 
-config.addPlace.addEventListener("click", () => {
-  clearValidationErrors(config.createPlaceInputList);
-  openPopup(popupCardAdd);
-  toggleButtonState(config.createPlaceInputList, config.createPlaceSubmit);
-});
-
-config.profileAvatar.addEventListener("click", () => {
-  clearValidationErrors(config.avatarInputList);
-  openPopup(popupAvatar);
-  toggleButtonState(config.avatarInputList, config.avatarSubmit);
-});
-
-popupCloseButtonList.forEach((button) =>
-  button.addEventListener("click", (event) => {
-    closePopup(event.target.closest(".popup"));
-  })
+const userInfo = new UserInfo(
+  { userName: config.profileTitle, userInfo: config.profileSubTitle },
+  config
 );
 
-config.deleteConfirmButton.addEventListener("click", () => {
-  deleteHandler(config.cardForRemove.id)
-    .then(() => {
-      config.cardForRemove.remove();
-      closePopup(config.popupDeleteConfirm);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-});
+const image = new PopupWithImage(
+  constants.popupImage,
+  config.image,
+  config.popupPictureCaption
+);
 
-config.saveProfile.addEventListener("submit", (event) => {
-  event.preventDefault();
+const section = new Section((item) => {
+  const card = new Card(
+    item,
+    config.cardTemplate,
+    config,
+    api,
+    () => image.open(item.link, item.name),
+    deleteConfirm
+  );
+  return card.createCard();
+}, config.cardsContainer);
+
+const editProfile = new PopupWithForm(constants.popupProfile, (formValues) => {
   config.editProfileSubmit.textContent = "Сохранение...";
-  patchUserData(config.profileInputName.value, config.profileInputJob.value)
-    .then(() => {
-      config.profileTitle.textContent = config.profileInputName.value;
-      config.profileSubTitle.textContent = config.profileInputJob.value;
-      closePopup(popupProfile);
+  api
+    .patchUserData(formValues.name, formValues.job)
+    .then((data) => {
+      userInfo.setUserInfo(data);
+      editProfile.close();
     })
     .finally(() => (config.editProfileSubmit.textContent = "Сохранить"))
     .catch((err) => {
@@ -135,14 +55,27 @@ config.saveProfile.addEventListener("submit", (event) => {
     });
 });
 
-config.avatarForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  config.avatarSubmit.textContent = "Сохранение...";
-  patchAvatar(config.avatarInput.value)
+const addPlace = new PopupWithForm(constants.popupCardAdd, (formValues) => {
+  config.createPlaceSubmit.textContent = "Создание...";
+  api
+    .postNewCard(formValues.title, formValues.link)
     .then((data) => {
-      config.profileAvatar.style.backgroundImage = `url(${data.avatar})`;
-      config.avatarInput.value = "";
-      closePopup(popupAvatar);
+      section.addItem(data);
+      addPlace.close();
+    })
+    .finally(() => (config.createPlaceSubmit.textContent = "Создать"))
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
+const profileAvatar = new PopupWithForm(constants.popupAvatar, (formValues) => {
+  config.avatarSubmit.textContent = "Сохранение...";
+  api
+    .patchAvatar(formValues.link_avatar)
+    .then((data) => {
+      userInfo.setUserInfo(data);
+      profileAvatar.close();
     })
     .finally(() => {
       config.avatarSubmit.textContent = "Сохранить";
@@ -152,21 +85,62 @@ config.avatarForm.addEventListener("submit", (event) => {
     });
 });
 
-config.createPlace.addEventListener("submit", (event) => {
-  event.preventDefault();
-  config.createPlaceSubmit.textContent = "Создание...";
-  addCard();
+const deleteConfirm = new PopupWithForm(config.popupDeleteConfirm, () => {
+  api
+    .deleteHandler(config.cardForRemove.id)
+    .then(() => {
+      config.cardForRemove.remove();
+      deleteConfirm.close();
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 });
 
-Promise.all([getUserData(), getInitialCards()]).then(([userData, cards]) => {
-  config.profileTitle.textContent = userData.name;
-  config.profileSubTitle.textContent = userData.about;
-  config.profileAvatar.style.backgroundImage = `url(${userData.avatar})`;
-  config.userId = userData._id;
-  initial(cards, config.cardsContainer);
-})
-.catch((err) => {
-  console.log(err);
-})
+const editProfileValidator = new FormValidator(
+  constants.validationConfig,
+  config.saveProfile
+);
+editProfileValidator.enableValidation();
 
-enableValidation();
+const addPlaceValidator = new FormValidator(
+  constants.validationConfig,
+  config.createPlace
+);
+addPlaceValidator.enableValidation();
+
+const profileAvatarValidator = new FormValidator(
+  constants.validationConfig,
+  config.avatarForm
+);
+profileAvatarValidator.enableValidation();
+
+config.editProfile.addEventListener("click", () => {
+  editProfileValidator.clearValidationErrors();
+  const { name, about } = userInfo.getUserInfo();
+  config.profileInputName.value = name;
+  config.profileInputJob.value = about;
+  editProfile.open();
+  editProfileValidator.toggleButtonState();
+});
+
+config.addPlace.addEventListener("click", () => {
+  addPlaceValidator.clearValidationErrors();
+  addPlace.open();
+  addPlaceValidator.toggleButtonState();
+});
+
+config.profileAvatar.addEventListener("click", () => {
+  profileAvatarValidator.clearValidationErrors();
+  profileAvatar.open();
+  profileAvatarValidator.toggleButtonState();
+});
+
+Promise.all([api.getUserData(), api.getInitialCards()])
+  .then(([userData, cards]) => {
+    userInfo.setUserInfo(userData);
+    section.renderItems(cards);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
