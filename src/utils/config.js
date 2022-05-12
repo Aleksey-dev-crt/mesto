@@ -15,7 +15,6 @@ export const config = {
   cardDelete: ".element__delete",
   cardLike: ".element__like",
   cardLikeActive: "element__like_active",
-  popupOpened: "popup_opened",
   avatarSubmit: document.forms.avatar.querySelector(".popup__button-save"),
   avatarInputList: Array.from(document.forms.avatar.querySelectorAll(".popup__input")),
   avatarInput: document.forms.avatar.querySelector(".popup__input"),
@@ -30,14 +29,15 @@ export const config = {
   profileInputList: Array.from(document.forms.profile.querySelectorAll(".popup__input")),
   profileInputName: document.forms.profile.elements.name,
   profileInputJob: document.forms.profile.elements.job,
-  inputErrorClass: "popup__input_type_error",
   saveProfile: document.forms.profile,
   profileTitle: document.querySelector(".profile__title"),
   profileSubTitle: document.querySelector(".profile__subtitle"),
   profileAvatar: document.querySelector(".profile__avatar"),
   addPlace: document.querySelector(".profile__add-button"),
   deleteConfirmButton: document.querySelector(".popup__button-save_type_confirm"),
+  deleteConfirmForm: document.forms.confirm,
   likesCounter: ".element__likes-counter",
   userId: "",
   cardForRemove: {}
 };
+

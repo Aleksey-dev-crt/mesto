@@ -99,14 +99,14 @@
           <form name="avatar" class="popup__form" novalidate>
             <h2 class="popup__title">Обновить аватар</h2>
             <input
-              name="link-avatar"
+              name="link_avatar"
               type="url"
               placeholder="Ссылка на картинку"
               value=""
               class="popup__input"
               required
             />
-            <span class="popup__error-visible" id="link-avatar-error"></span>
+            <span class="popup__error-visible" id="link_avatar-error"></span>
             <button type="submit" name="addPlace" class="popup__button-save">
               Сохранить
             </button>
@@ -116,10 +116,12 @@
       </div>
       <div class="popup popup_type_delete_confirm">
         <div class="popup__container">
+          <form name="confirm" class="popup__form" novalidate>
             <h2 class="popup__title">Вы уверены?</h2>
-            <button type="button" class="popup__button-save popup__button-save_type_confirm">
+            <button type="submit" class="popup__button-save popup__button-save_type_confirm">
               Да
             </button>
+          </form>
           <button type="button" class="popup__button-close"></button>
         </div>
       </div>
